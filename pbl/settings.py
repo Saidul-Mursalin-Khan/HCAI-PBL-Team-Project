@@ -38,8 +38,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "home", 
+    "home",
     "demos",
+    'project1',   # Supervised Learning Interface
+    'project2',   # Active Learning for Text Classification
+    'project3',   # Explainability
+    'project4',   # Influence of future predictions over active learning of users’ tastes for recommender systems
+    'project5',   # Reinforcement Learning with Human Feedback
 ]
 
 MIDDLEWARE = [
