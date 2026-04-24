@@ -1,0 +1,13 @@
+{% extends 'project1/base.html' %}
+{% block content %}
+<h2>Data Visualization</h2>
+
+{% for name, url in plots.items %}
+  <div class="plot-card">
+    <h3>{{ name|title }}</h3>
+    <img src="{{ url }}" alt="{{ name }}">
+  </div>
+{% endfor %}
+
+<a href="{% url 'project1:configure' %}">Next: Configure Training →</a>
+{% endblock %}

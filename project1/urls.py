@@ -3,5 +3,10 @@ from . import views
 
 app_name = 'project1'
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('',                views.upload,               name='index'),
+    path('upload/',         views.upload,               name='upload'),
+    path('visualize/',      views.visualize,            name='visualize'),
+    path('configure/',      views.configure,            name='configure'),
+    path('classification/', views.classification_train, name='classification'),
+    path('regression/',     views.regression_train,     name='regression'),
 ]
