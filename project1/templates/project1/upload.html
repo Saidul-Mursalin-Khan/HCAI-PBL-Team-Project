@@ -1,4 +1,4 @@
-    {% extends 'project1/base.html' %}
+  
  {% load static %}
  <!DOCTYPE html>
 
@@ -9,31 +9,25 @@
     <title></title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href={% static 'styles/style.css' %}>
   </head>
   <body>
 
-{% block content %}
-<h2>Upload Dataset</h2>
 
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  <input type="file" name="dataset" accept=".csv" required>
-  <button type="submit">Upload</button>
-</form>
 
 {% if error %}
   <p class="error">{{ error }}</p>
 {% endif %}
 
 {% if table_html %}
+<div class= "centered-content">
   <h3>Preview (first 20 rows) — {{ shape.0 }} rows × {{ shape.1 }} columns</h3>
   {{ table_html|safe }}
-
+</div>
   <h3>Set Target Label</h3>
   <form method="post" action="{% url 'project1:configure' %}">
     {% csrf_token %}
-    <label>Select target column:</label>
+    <label >Select target column:</label>
     <select name="target_column">
       {% for col in columns %}
         <option value="{{ col }}">{{ col }}</option>
@@ -42,7 +36,7 @@
     <button type="submit">Next: Configure</button>
   </form>
 {% endif %}
-{% endblock %}
+
     
     <script src="" async defer></script>
   </body>

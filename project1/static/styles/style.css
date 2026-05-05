@@ -4,7 +4,7 @@ body {
   font-family: 'Times New Roman', Times, serif;
   margin: 0;
   padding: 20px;
-  overflow: hidden;
+  overflow-y: auto;
 
 }
 
@@ -45,13 +45,12 @@ button:hover {
 
 
 .centered-content {
-  height: 100px;
+  height: 300px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 50px;
-
+  padding: 150px;
 
 }
 
@@ -62,4 +61,17 @@ form {
   border-radius: 10px;
   box-shadow: 0 4p 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
+}
+
+.table-preview {
+  margin-top: 40px;
+
+}
+
+.right_set {
+  display: flex;
+}
+
+.push-right {
+  margin-left: auto;
 }

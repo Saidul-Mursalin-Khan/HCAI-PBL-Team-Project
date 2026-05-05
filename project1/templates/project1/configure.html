@@ -1,6 +1,17 @@
-{% extends 'project1/base.html' %}
-{% block content %}
-<h2>Configure Training</h2>
+{% load static%}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'styles/style.css' %}">
+  </head>
+  <body>
+   
+    <h2>Configure Training</h2>
 
 <form method="post">
   {% csrf_token %}
@@ -25,4 +36,7 @@
 
   <button type="submit">Train Model</button>
 </form>
-{% endblock %}
+    <script src="" async defer></script>
+  </body>
+</html>
+
