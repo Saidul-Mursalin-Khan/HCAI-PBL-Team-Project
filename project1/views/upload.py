@@ -22,6 +22,13 @@ def upload(request):
 
             # Store in session
             request.session['dataset_path'] = file_path
+
+            # Reset old experiment state
+            request.session.pop('target_column', None)
+            request.session.pop('problem_type', None)
+            request.session.pop('split_path', None)
+            request.session.pop('test_size', None)
+            request.session['training_completed'] = False
             request.session['columns'] = list(df.columns)
 
             # Pass table preview to template

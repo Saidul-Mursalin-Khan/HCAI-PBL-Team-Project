@@ -42,12 +42,18 @@ def save_fig(fig, name):
     return '/' + path
 
 def regression_train(request):
+
     if request.session.get('problem_type') != 'regression':
         return redirect('project1:configure')
 
     split_path = request.session.get('split_path')
+
     if not split_path:
         return redirect('project1:configure')
+
+    # RESET TRAINING STATUS WHEN PAGE LOADS
+    if request.method == 'GET':
+        request.session['training_completed'] = False
 
     with open(split_path, 'rb') as f:
         split = pickle.load(f)
@@ -61,62 +67,128 @@ def regression_train(request):
     selected_model = None
 
     if request.method == 'POST':
+
         model_key = request.POST.get('model')
+
         selected_model = model_key
 
         kwargs = {}
+
         for param, dtype in HYPERPARAMS.get(model_key, {}).items():
+
             val = request.POST.get(param)
+
             if val:
                 try:
                     kwargs[param] = dtype(val)
+
                 except ValueError:
                     pass
 
         ModelClass = MODELS[model_key]
+
         model = ModelClass(**kwargs)
+
+        # TRAIN MODEL
         model.fit(X_train, y_train)
+
+        # ONLY AFTER TRAINING
+        request.session['training_completed'] = True
+
         y_pred = model.predict(X_test)
 
-        r2  = r2_score(y_test, y_pred)
-        n   = len(y_test)
-        p   = X_test.shape[1]
+        r2 = r2_score(y_test, y_pred)
+
+        n = len(y_test)
+
+        p = X_test.shape[1]
+
         adj_r2 = 1 - (1 - r2) * (n - 1) / (n - p - 1)
-        mse  = mean_squared_error(y_test, y_pred)
+
+        mse = mean_squared_error(y_test, y_pred)
+
         rmse = np.sqrt(mse)
-        mae  = mean_absolute_error(y_test, y_pred)
+
+        mae = mean_absolute_error(y_test, y_pred)
+
         mape = mean_absolute_percentage_error(y_test, y_pred)
 
         results = {
-            'r2':     round(r2, 4),
+            'r2': round(r2, 4),
+
             'adj_r2': round(adj_r2, 4),
-            'mae':    round(mae, 4),
-            'mse':    round(mse, 4),
-            'rmse':   round(rmse, 4),
-            'mape':   round(mape * 100, 2),  # as percentage
+
+            'mae': round(mae, 4),
+
+            'mse': round(mse, 4),
+
+            'rmse': round(rmse, 4),
+
+            'mape': round(mape * 100, 2),
         }
 
-        # Actual vs Predicted scatter
+        # ACTUAL VS PREDICTED
         fig, ax = plt.subplots(figsize=(6, 5))
-        ax.scatter(y_test, y_pred, alpha=0.6, color='steelblue')
-        mn = min(y_test.min(), y_pred.min())
-        mx = max(y_test.max(), y_pred.max())
-        ax.plot([mn, mx], [mn, mx], 'r--', label='Perfect fit')
-        ax.set_xlabel('Actual')
-        ax.set_ylabel('Predicted')
-        ax.set_title('Actual vs Predicted')
-        ax.legend()
-        results['actual_vs_pred_img'] = save_fig(fig, 'actual_vs_pred')
 
-        # Residuals plot
+        ax.scatter(
+            y_test,
+            y_pred,
+            alpha=0.6,
+            color='steelblue'
+        )
+
+        mn = min(y_test.min(), y_pred.min())
+
+        mx = max(y_test.max(), y_pred.max())
+
+        ax.plot(
+            [mn, mx],
+            [mn, mx],
+            'r--',
+            label='Perfect fit'
+        )
+
+        ax.set_xlabel('Actual')
+
+        ax.set_ylabel('Predicted')
+
+        ax.set_title('Actual vs Predicted')
+
+        ax.legend()
+
+        results['actual_vs_pred_img'] = save_fig(
+            fig,
+            'actual_vs_pred'
+        )
+
+        # RESIDUALS
         residuals = y_test - y_pred
+
         fig, ax = plt.subplots(figsize=(6, 4))
-        ax.scatter(y_pred, residuals, alpha=0.6, color='coral')
-        ax.axhline(0, color='black', linestyle='--')
+
+        ax.scatter(
+            y_pred,
+            residuals,
+            alpha=0.6,
+            color='coral'
+        )
+
+        ax.axhline(
+            0,
+            color='black',
+            linestyle='--'
+        )
+
         ax.set_xlabel('Predicted')
+
         ax.set_ylabel('Residuals')
+
         ax.set_title('Residual Plot')
-        results['residuals_img'] = save_fig(fig, 'residuals')
+
+        results['residuals_img'] = save_fig(
+            fig,
+            'residuals'
+        )
 
     return render(request, 'project1/regression.html', {
         'models': list(MODELS.keys()),

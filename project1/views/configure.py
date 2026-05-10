@@ -4,6 +4,7 @@ import pickle
 import pandas as pd
 from django.shortcuts import render, redirect
 from sklearn.model_selection import train_test_split
+import json
 
 SPLIT_DIR = 'media/splits/'
 
@@ -63,20 +64,33 @@ def configure(request):
         # Store in session
         request.session['target_column'] = target_col
         request.session['problem_type'] = problem_type
+        request.session['test_size'] = test_size
         request.session['split_path'] = split_path
 
         # Redirect to correct training view
-        if problem_type == 'classification':
-            return redirect('project1:classification')
-        else:
-            return redirect('project1:regression')
+        return redirect('project1:visualize')
 
     # GET — show config form
-    target_col = request.POST.get('target_column') or request.session.get('target_column', df.columns[-1])
+    # GET — show config form
+    target_col = request.session.get('target_column')
+    if not target_col or target_col not in df.columns:
+        target_col = df.columns[-1]
+
+    saved_test_size = request.session.get('test_size', 0.2)
+    saved_test_pct = int(saved_test_size * 100)
+
     auto_type = detect_problem_type(df[target_col])
+
+    column_types = {}
+
+    for col in df.columns:
+        column_types[col] = detect_problem_type(df[col])
 
     return render(request, 'project1/configure.html', {
         'columns': df.columns,
         'target_column': target_col,
         'auto_detected_type': auto_type,
+        'column_types_json': json.dumps(column_types),
+        'test_size': saved_test_size,
+        'test_size_pct': saved_test_pct,
     })

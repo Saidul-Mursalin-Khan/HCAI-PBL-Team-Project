@@ -1,28 +1,160 @@
-{% extends 'project1/base.html' %}
+{% extends "project1/base.html" %}
 {% block content %}
-<h2>Configure Training</h2>
 
-<form method="post">
+<div class="step-nav-label">Step 2–3 of 5</div>
+<div class="step-nav-title">Select target &amp; configure</div>
+<div class="step-nav-desc">Choose which column the model should predict, then set your train/test split.</div>
+
+{% if error %}
+<div class="alert alert-danger"><i class="ti ti-alert-circle"></i> {{ error }}</div>
+{% endif %}
+
+<form method="post" action="{% url 'project1:configure' %}">
   {% csrf_token %}
+  <input type="hidden" name="target_column" id="target-hidden" value="{{ target_column }}">
+  <input type="hidden" name="problem_type" id="problem-type-hidden" value="{{ auto_detected_type }}">
 
-  <label>Target Column:</label>
-  <select name="target_column">
-    {% for col in columns %}
-      <option value="{{ col }}" {% if col == target_column %}selected{% endif %}>{{ col }}</option>
-    {% endfor %}
-  </select>
+  <!-- TARGET COLUMN SELECTION -->
+  <div class="card">
+    <div class="section-head">Target column</div>
 
-  <label>Problem Type (auto-detected: {{ auto_detected_type }}):</label>
-  <select name="problem_type">
-    <option value="">Auto-detect</option>
-    <option value="classification">Classification</option>
-    <option value="regression">Regression</option>
-  </select>
+    <div class="col-info">
+      <span style="font-size:12px;color:var(--text-muted);font-weight:600;margin-right:4px">Legend:</span>
+      <span class="col-chip num"><i class="ti ti-hash" style="font-size:12px"></i>Numeric</span>
+      <span class="col-chip cat"><i class="ti ti-abc" style="font-size:12px"></i>Categorical</span>
+    </div>
 
-  <label>Test Size: <span id="split-val">20%</span></label>
-  <input type="range" name="test_size" min="0.1" max="0.4" step="0.05" value="0.2"
-         oninput="document.getElementById('split-val').textContent = Math.round(this.value * 100) + '%'">
+    <label class="field-label">Click a column to set it as the target</label>
+    <div class="target-selector">
+      {% for col in columns %}
+      <div class="target-pill {% if col == target_column %}selected{% endif %}"
+          id="pill-{{ col|slugify }}"
+          onclick="selectTarget(`{{ col }}`)">
+        {{ col }}
+      </div>
+      {% endfor %}
+    </div>
 
-  <button type="submit">Train Model</button>
+    <!-- Target info (shown after selection) -->
+    <div id="target-info-card" class="card" style="margin-top:16px;margin-bottom:0;{% if not target_column %}display:none{% endif %}">
+      <div class="info-row">
+        <i class="ti ti-tag"></i><span>Target column</span>
+        <strong style="margin-left:auto;font-family:var(--mono)" id="info-col">{{ target_column }}</strong>
+      </div>
+      <div class="info-row">
+        <i class="ti ti-cpu"></i><span>Detected type</span>
+        <strong style="margin-left:auto" id="info-type">
+          <span class="badge {% if auto_detected_type == 'classification' %}badge-blue{% else %}badge-warning{% endif %}">
+            {{ auto_detected_type }}
+          </span>
+        </strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBLEM TYPE -->
+  <div class="card">
+    <div class="section-head">Problem type</div>
+    <div class="type-grid">
+      <div class="type-card {% if auto_detected_type == 'classification' %}selected{% endif %}"
+           id="tc-classification" onclick="selectType('classification')">
+        <i class="ti ti-category-2"></i>
+        <h3>Classification</h3>
+        <p>Predict which category a sample belongs to. Best for discrete labels like spam/not-spam, species, sentiment.</p>
+      </div>
+      <div class="type-card {% if auto_detected_type == 'regression' %}selected{% endif %}"
+           id="tc-regression" onclick="selectType('regression')">
+        <i class="ti ti-trending-up"></i>
+        <h3>Regression</h3>
+        <p>Predict a continuous numerical value. Best for quantities like price, temperature, or count.</p>
+      </div>
+    </div>
+
+    <div class="alert alert-info" id="auto-detect-alert">
+      <i class="ti ti-info-circle"></i>
+      <span>
+        Auto-detected as
+        <strong id="auto-type-text">{{ auto_detected_type }}</strong>
+        based on target column
+        "<strong id="auto-target-text">{{ target_column }}</strong>".
+        You can override above.
+      </span>
+    </div>
+
+    <!-- TRAIN/TEST SPLIT -->
+    <div class="section-head" style="margin-top:8px">Train / test split</div>
+    <div class="field-group">
+      <label class="field-label">
+        Test size: <span id="split-pct-label" style="color:var(--blue);font-family:var(--mono)">{{ test_size_pct }}%</span>
+      </label>
+      <input type="range" name="test_size_pct" id="split-slider"
+             min="10" max="40" value="{{ test_size_pct }}" step="5"
+             oninput="updateSplit(this.value)">
+      <input type="hidden" name="test_size" id="test-size-hidden" value="{{ test_size }}">
+      <div class="split-display" style="margin-top:12px">
+        <div class="split-train" id="split-train" style="width:{{ train_size_pct }}"></div>
+        <div class="split-test" id="split-test" style="width:{{ test_size_pct }}%"></div>
+      </div>
+      <div class="split-labels">
+        <span id="split-train-lbl">Train: {{ train_size_pct }}%</span>
+        <span id="split-test-lbl">Test: {{ test_size_pct }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <a href="{% url 'project1:upload' %}" class="btn btn-outline">
+      <i class="ti ti-arrow-left"></i> Back
+    </a>
+    <button type="submit" class="btn btn-primary" id="btn-configure">
+      Explore Data <i class="ti ti-arrow-right"></i>
+    </button>
+  </div>
 </form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Column type map from server
+const columnTypes = {{ column_types_json|safe }};
+
+function selectTarget(col) {
+  document.querySelectorAll('.target-pill').forEach(p => p.classList.remove('selected'));
+  const safeid = col.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+  // Try to find the pill by matching text content
+  document.querySelectorAll('.target-pill').forEach(p => {
+    if (p.textContent.trim() === col) p.classList.add('selected');
+  });
+
+  document.getElementById('target-hidden').value = col;
+  document.getElementById('info-col').textContent = col;
+
+  const detectedType = columnTypes[col] || 'classification';
+  document.getElementById('auto-type-text').textContent = detectedType;
+  document.getElementById('auto-target-text').textContent = col;
+
+  const badge = document.getElementById('info-type');
+  badge.innerHTML = `<span class="badge ${detectedType === 'classification' ? 'badge-blue' : 'badge-warning'}">${detectedType}</span>`;
+  document.getElementById('target-info-card').style.display = 'block';
+
+  selectType(detectedType);
+}
+
+function selectType(t) {
+  document.getElementById('tc-classification').classList.toggle('selected', t === 'classification');
+  document.getElementById('tc-regression').classList.toggle('selected', t === 'regression');
+  document.getElementById('problem-type-hidden').value = t;
+}
+
+function updateSplit(v) {
+  const pct = parseInt(v);
+  document.getElementById('split-pct-label').textContent = pct + '%';
+  document.getElementById('split-train').style.width = (100 - pct) + '%';
+  document.getElementById('split-test').style.width = pct + '%';
+  document.getElementById('split-train-lbl').textContent = 'Train: ' + (100 - pct) + '%';
+  document.getElementById('split-test-lbl').textContent = 'Test: ' + pct + '%';
+  document.getElementById('test-size-hidden').value = (pct / 100).toFixed(2);
+}
+</script>
 {% endblock %}

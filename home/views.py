@@ -1,12 +1,7 @@
 # from django.http import HttpResponse
 
-
-# def index(request):
-#     return HttpResponse("Hello, world. You're at the polls index.")
-
 from django.http import HttpResponse
 from django.template import loader
-
 
 def index(request):
     template = loader.get_template("home/index.html")
@@ -14,16 +9,16 @@ def index(request):
     
     students = [
         {"name": "Khan, Saidul Mursalin", "matriculation": "670261"},
-        {"name": "Urme, Asmaul Husna", "matriculation": "633736"},#
-        {"name": "Günes, Doga Ruken", "matriculation": "641511"},#
-        {"name": "Tabassum, Ridowana", "matriculation": "638252"},#
+        {"name": "Urme, Asmaul Husna",    "matriculation": "633736"},#
+        {"name": "Günes, Doga Ruken",     "matriculation": "641511"},#
+        {"name": "Tabassum, Ridowana",    "matriculation": "638252"},#
         {"name": "Zeshan, Md Mehrabul Islam", "matriculation": "646871"},
     ]
     
     projects = [
         # {"name": "Home", "url_name": "home:index"},
         # {"name": "Home 2", "url_name": "home:index"},
-        {"name": "Project 1: Supervised Learning",  "url_name": "project1:index"},
+        {"name": "Project 1: Supervised Learning",   "url_name": "project1:index"},
         {"name": "Project 2: Active Learning",       "url_name": "project2:index"},
         {"name": "Project 3: Explainability",        "url_name": "project3:index"},
         {"name": "Project 4: Recommender System",    "url_name": "project4:index"},
@@ -36,3 +31,4 @@ def index(request):
     }
     
     return HttpResponse(template.render(context, request))
+

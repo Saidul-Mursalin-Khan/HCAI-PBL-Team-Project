@@ -65,4 +65,11 @@ def visualize(request):
         ax.set_title(f'Count Plot — {target}')
         plots['countplot'] = save_fig(fig, 'countplot')
 
-    return render(request, 'project1/visualize.html', {'plots': plots})
+    problem_type = request.session.get('problem_type', 'classification')
+
+    return render(request, 'project1/visualize.html', {
+        'plots': plots,
+        'problem_type': problem_type,
+        'target_column': target,
+        'num_count': len(numeric_cols),
+    })

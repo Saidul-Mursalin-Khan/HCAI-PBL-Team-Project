@@ -1,0 +1,65 @@
+{% extends 'project1/base.html' %}
+{% block content %}
+<h2>Classification Training</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <label>Model:</label>
+  <select name="model" id="model-select" onchange="showParams(this.value)">
+    {% for m in models %}
+      <option value="{{ m }}">{{ m|title|cut:"_" }}</option>
+    {% endfor %}
+  </select>
+
+  <div id="param-logistic_regression" class="params">
+    <label>C (regularization): <input type="number" name="C" value="1.0" step="0.1"></label>
+  </div>
+  <div id="param-decision_tree" class="params" style="display:none">
+    <label>Max Depth: <input type="number" name="max_depth" value="5" min="1"></label>
+  </div>
+  <div id="param-random_forest" class="params" style="display:none">
+    <label>N Estimators: <input type="number" name="n_estimators" value="100" min="1"></label>
+    <label>Max Depth: <input type="number" name="max_depth" value="5" min="1"></label>
+  </div>
+  <div id="param-knn" class="params" style="display:none">
+    <label>K Neighbors: <input type="number" name="n_neighbors" value="5" min="1"></label>
+  </div>
+  <div id="param-svm" class="params" style="display:none">
+    <label>C: <input type="number" name="C" value="1.0" step="0.1"></label>
+    <label>Kernel:
+      <select name="kernel">
+        <option>rbf</option><option>linear</option><option>poly</option>
+      </select>
+    </label>
+  </div>
+
+  <button type="submit">Train</button>
+</form>
+
+{% if results %}
+<h3>Results</h3>
+<table>
+  <tr><th>Metric</th><th>Value</th></tr>
+  <tr><td>Accuracy</td><td>{{ results.accuracy }}</td></tr>
+  <tr><td>Precision (weighted)</td><td>{{ results.precision }}</td></tr>
+  <tr><td>Recall (weighted)</td><td>{{ results.recall }}</td></tr>
+  <tr><td>F1 Score (weighted)</td><td>{{ results.f1 }}</td></tr>
+  {% if results.roc_auc %}
+  <tr><td>ROC-AUC</td><td>{{ results.roc_auc }}</td></tr>
+  {% endif %}
+</table>
+
+<img src="{{ results.confusion_matrix_img }}" alt="Confusion Matrix">
+{% if results.roc_img %}
+  <img src="{{ results.roc_img }}" alt="ROC Curve">
+{% endif %}
+{% endif %}
+
+<script>
+function showParams(model) {
+  document.querySelectorAll('.params').forEach(d => d.style.display = 'none');
+  const el = document.getElementById('param-' + model);
+  if (el) el.style.display = 'block';
+}
+</script>
+{% endblock %}

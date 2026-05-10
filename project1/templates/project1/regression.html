@@ -1,54 +1,179 @@
-{% extends 'project1/base.html' %}
+{% extends "project1/base.html" %}
 {% block content %}
-<h2>Regression Training</h2>
-
-<form method="post">
-  {% csrf_token %}
-  <label>Model:</label>
-  <select name="model" onchange="showParams(this.value)">
-    {% for m in models %}
-      <option value="{{ m }}">{{ m|title }}</option>
-    {% endfor %}
-  </select>
-
-  <div id="param-decision_tree" class="params">
-    <label>Max Depth: <input type="number" name="max_depth" value="5" min="1"></label>
-  </div>
-  <div id="param-random_forest" class="params" style="display:none">
-    <label>N Estimators: <input type="number" name="n_estimators" value="100"></label>
-    <label>Max Depth: <input type="number" name="max_depth" value="5"></label>
-  </div>
-  <div id="param-knn" class="params" style="display:none">
-    <label>K Neighbors: <input type="number" name="n_neighbors" value="5"></label>
-  </div>
-  <div id="param-svr" class="params" style="display:none">
-    <label>C: <input type="number" name="C" value="1.0" step="0.1"></label>
-  </div>
-
-  <button type="submit">Train</button>
-</form>
 
 {% if results %}
-<h3>Regression Results</h3>
-<table>
-  <tr><th>Metric</th><th>Value</th></tr>
-  <tr><td>R²</td><td>{{ results.r2 }}</td></tr>
-  <tr><td>Adjusted R²</td><td>{{ results.adj_r2 }}</td></tr>
-  <tr><td>MAE</td><td>{{ results.mae }}</td></tr>
-  <tr><td>MSE</td><td>{{ results.mse }}</td></tr>
-  <tr><td>RMSE</td><td>{{ results.rmse }}</td></tr>
-  <tr><td>MAPE</td><td>{{ results.mape }}%</td></tr>
-</table>
+<!-- ===== STEP 6: RESULTS ===== -->
+<div class="step-nav-label">Step 4 & 5 of 5</div>
+<div class="step-nav-title">Training results</div>
+<div class="step-nav-desc">Model performance on the held-out test set.</div>
 
-<img src="{{ results.actual_vs_pred_img }}" alt="Actual vs Predicted">
-<img src="{{ results.residuals_img }}" alt="Residuals">
+<div class="alert alert-success">
+  <i class="ti ti-circle-check"></i>
+  <span>Training complete — <strong>{{ selected_model|title }}</strong> fitted successfully.</span>
+</div>
+
+<!-- METRICS -->
+<div class="section-head">Performance metrics</div>
+<div class="metric-grid">
+  <div class="metric-card">
+    <div class="m-label">R²</div>
+    <div class="m-value" style="font-size:20px">{{ results.r2 }}</div>
+  </div>
+  <div class="metric-card">
+    <div class="m-label">Adj R²</div>
+    <div class="m-value" style="font-size:20px">{{ results.adj_r2 }}</div>
+  </div>
+  <div class="metric-card">
+    <div class="m-label">MAE</div>
+    <div class="m-value" style="font-size:20px">{{ results.mae }}</div>
+  </div>
+  <div class="metric-card">
+    <div class="m-label">MSE</div>
+    <div class="m-value" style="font-size:20px">{{ results.mse }}</div>
+  </div>
+  <div class="metric-card">
+    <div class="m-label">RMSE</div>
+    <div class="m-value" style="font-size:20px">{{ results.rmse }}</div>
+  </div>
+  <div class="metric-card">
+    <div class="m-label">MAPE</div>
+    <div class="m-value" style="font-size:20px">{{ results.mape }}<span style="font-size:14px">%</span></div>
+  </div>
+</div>
+
+<!-- ACTUAL VS PREDICTED -->
+{% if results.actual_vs_pred_img %}
+<div class="section-head">Actual vs Predicted</div>
+<div class="result-plot">
+  <img src="{{ results.actual_vs_pred_img }}" alt="Actual vs Predicted">
+</div>
 {% endif %}
 
+<!-- RESIDUALS -->
+{% if results.residuals_img %}
+<div class="section-head">Residuals</div>
+<div class="result-plot">
+  <img src="{{ results.residuals_img }}" alt="Residual Plot">
+</div>
+{% endif %}
+
+<div class="btn-row" style="margin-top:8px">
+  <a href="{% url 'project1:regression' %}" class="btn btn-outline">
+    <i class="ti ti-refresh"></i> Retrain with different model
+  </a>
+  <a href="{% url 'project1:upload' %}" class="btn btn-outline">
+    <i class="ti ti-plus"></i> New Experiment
+  </a>
+</div>
+
+{% else %}
+<!-- ===== STEP 5: MODEL SELECTION ===== -->
+<div class="step-nav-label">Step 5 of 6</div>
+<div class="step-nav-title">Select model &amp; hyperparameters</div>
+<div class="step-nav-desc">Pick a regression algorithm and tune its parameters before training.</div>
+
+<form method="post" action="{% url 'project1:regression' %}" id="train-form">
+  {% csrf_token %}
+  <input type="hidden" name="model" id="model-hidden" value="">
+
+  <div class="card">
+    <div class="section-head">Algorithm</div>
+    <div class="model-grid">
+      <div class="model-card" id="mc-linear_regression" onclick="selectModel('linear_regression')">
+        <i class="ti ti-line-dashed"></i>
+        <div class="mc-name">Linear Regression</div>
+        <div class="mc-desc">OLS baseline</div>
+      </div>
+      <div class="model-card" id="mc-decision_tree" onclick="selectModel('decision_tree')">
+        <i class="ti ti-binary-tree"></i>
+        <div class="mc-name">Decision Tree</div>
+        <div class="mc-desc">Rule-based splits</div>
+      </div>
+      <div class="model-card" id="mc-random_forest" onclick="selectModel('random_forest')">
+        <i class="ti ti-trees"></i>
+        <div class="mc-name">Random Forest</div>
+        <div class="mc-desc">Ensemble of trees</div>
+      </div>
+      <div class="model-card" id="mc-knn" onclick="selectModel('knn')">
+        <i class="ti ti-circles"></i>
+        <div class="mc-name">KNN Regressor</div>
+        <div class="mc-desc">Distance-based</div>
+      </div>
+      <div class="model-card" id="mc-svr" onclick="selectModel('svr')">
+        <i class="ti ti-vector-bezier-2"></i>
+        <div class="mc-name">SVR</div>
+        <div class="mc-desc">Support vector reg.</div>
+      </div>
+    </div>
+
+    <div id="hyperparam-box" class="param-box">
+      <h4><i class="ti ti-adjustments"></i> Hyperparameters</h4>
+      <div class="param-grid" id="param-grid"></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <a href="{% url 'project1:visualize' %}" class="btn btn-outline">
+      <i class="ti ti-arrow-left"></i> Back
+    </a>
+    <button type="submit" class="btn btn-primary" id="btn-train" disabled>
+      Train Model <i class="ti ti-player-play"></i>
+    </button>
+  </div>
+</form>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{% if not results %}
 <script>
-function showParams(model) {
-  document.querySelectorAll('.params').forEach(d => d.style.display = 'none');
-  const el = document.getElementById('param-' + model);
-  if (el) el.style.display = 'block';
+const HYPERPARAMS = {
+  linear_regression: [],
+  decision_tree: [
+    { id: 'max_depth', label: 'Max Depth', type: 'number', val: 5, min: 1, step: 1 }
+  ],
+  random_forest: [
+    { id: 'n_estimators', label: 'N Estimators', type: 'number', val: 100, min: 10, step: 10 },
+    { id: 'max_depth', label: 'Max Depth', type: 'number', val: 5, min: 1, step: 1 }
+  ],
+  knn: [
+    { id: 'n_neighbors', label: 'K Neighbors', type: 'number', val: 5, min: 1, step: 1 }
+  ],
+  svr: [
+    { id: 'C', label: 'C', type: 'number', val: 1.0, min: 0.01, step: 0.1 },
+    { id: 'kernel', label: 'Kernel', type: 'select', options: ['rbf', 'linear', 'poly', 'sigmoid'], val: 'rbf' }
+  ]
+};
+
+function selectModel(id) {
+  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('mc-' + id).classList.add('selected');
+  document.getElementById('model-hidden').value = id;
+  document.getElementById('btn-train').disabled = false;
+
+  const params = HYPERPARAMS[id] || [];
+  const grid = document.getElementById('param-grid');
+  const box = document.getElementById('hyperparam-box');
+
+  if (params.length > 0) {
+    grid.innerHTML = params.map(p => {
+      if (p.type === 'select') {
+        return `<div>
+          <label class="field-label">${p.label}</label>
+          <select name="${p.id}">${p.options.map(o => `<option${o===p.val?' selected':''}>${o}</option>`).join('')}</select>
+        </div>`;
+      }
+      return `<div>
+        <label class="field-label">${p.label}</label>
+        <input type="number" name="${p.id}" value="${p.val}" min="${p.min}" step="${p.step}">
+      </div>`;
+    }).join('');
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
 }
 </script>
+{% endif %}
 {% endblock %}

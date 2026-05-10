@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "home",
-    "demos",
+    # "demos",
     'project1',   # Supervised Learning Interface
     'project2',   # Active Learning for Text Classification
     'project3',   # Explainability
@@ -70,6 +70,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                'project1.context_processors.stepper_context',
             ],
         },
     },

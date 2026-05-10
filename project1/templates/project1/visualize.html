@@ -1,13 +1,81 @@
-{% extends 'project1/base.html' %}
+{% extends "project1/base.html" %}
 {% block content %}
-<h2>Data Visualization</h2>
 
-{% for name, url in plots.items %}
-  <div class="plot-card">
-    <h3>{{ name|title }}</h3>
-    <img src="{{ url }}" alt="{{ name }}">
+<div class="step-nav-label">Step 4 of 5</div>
+<div class="step-nav-title">Exploratory data analysis</div>
+<div class="step-nav-desc">Understand your data before training — distributions, correlations, class balance, and missing values.</div>
+
+<!-- Summary stats -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-label">Numeric cols</div>
+    <div class="stat-value">{{ num_count }}</div>
+    <div class="stat-sub">quantitative features</div>
   </div>
-{% endfor %}
+  <div class="stat-card">
+    <div class="stat-label">Plots</div>
+    <div class="stat-value">{{ plots|length }}</div>
+    <div class="stat-sub">generated</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Target</div>
+    <div class="stat-value" style="font-size:14px;padding-top:4px">{{ target_column }}</div>
+    <div class="stat-sub">prediction column</div>
+  </div>
+</div>
 
-<a href="{% url 'project1:configure' %}">Next: Configure Training →</a>
+<!-- PLOTS -->
+{% if plots.histogram %}
+<div class="section-head">Feature distributions</div>
+<div class="plot-card" style="margin-bottom:16px">
+  <div class="plot-header"><i class="ti ti-chart-histogram" style="color:var(--blue)"></i> Histograms</div>
+  <img src="{{ plots.histogram }}" alt="Histograms" style="width:100%;height:auto;display:block">
+</div>
+{% endif %}
+
+<div class="plot-grid">
+  {% if plots.boxplot %}
+  <div class="plot-card">
+    <div class="plot-header"><i class="ti ti-chart-candle" style="color:var(--blue)"></i> Box Plot</div>
+    <img src="{{ plots.boxplot }}" alt="Box plot" style="width:100%;height:auto">
+  </div>
+  {% endif %}
+
+  {% if plots.scatter %}
+  <div class="plot-card">
+    <div class="plot-header"><i class="ti ti-chart-dots" style="color:var(--blue)"></i> Scatter Plot</div>
+    <img src="{{ plots.scatter }}" alt="Scatter plot" style="width:100%;height:auto">
+  </div>
+  {% endif %}
+
+  {% if plots.heatmap %}
+  <div class="plot-card" style="grid-column: 1 / -1;">
+    <div class="plot-header"><i class="ti ti-layout-grid" style="color:var(--blue)"></i> Correlation Heatmap</div>
+    <img src="{{ plots.heatmap }}" alt="Correlation heatmap" style="width:100%;height:auto">
+  </div>
+  {% endif %}
+
+  {% if plots.countplot %}
+  <div class="plot-card" style="grid-column: 1 / -1;">
+    <div class="plot-header"><i class="ti ti-chart-bar" style="color:var(--blue)"></i> Target Distribution — {{ target_column }}</div>
+    <img src="{{ plots.countplot }}" alt="Count plot" style="width:100%;height:auto">
+  </div>
+  {% endif %}
+</div>
+
+<div class="btn-row">
+  <a href="{% url 'project1:configure' %}" class="btn btn-outline">
+    <i class="ti ti-arrow-left"></i> Back
+  </a>
+  {% if problem_type == 'classification' %}
+  <a href="{% url 'project1:classification' %}" class="btn btn-primary">
+    Choose Model <i class="ti ti-arrow-right"></i>
+  </a>
+  {% else %}
+  <a href="{% url 'project1:regression' %}" class="btn btn-primary">
+    Choose Model <i class="ti ti-arrow-right"></i>
+  </a>
+  {% endif %}
+</div>
+
 {% endblock %}
