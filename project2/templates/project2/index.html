@@ -6,7 +6,10 @@
 {% endblock %}
 
 {% block content %}
-<h1>Project 2: Active Learning for Text Classification</h1>
-<p>Sentiment analysis on IMDB 50k movie reviews using active learning.</p>
-<p>🚧 Under Construction...</p>
+<h1>{{ title }}</h1>
+
+<p>Task 1: Decision Tree on Palmer Penguins dataset</p>
+
+<p><strong>Test Accuracy:</strong> {{ accuracy|floatformat:2 }}</p>
+<p><strong>Number of leaves:</strong> {{ n_leaves }}</p>
 {% endblock %}
