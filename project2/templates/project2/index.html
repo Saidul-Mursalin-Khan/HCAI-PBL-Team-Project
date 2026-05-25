@@ -5,11 +5,20 @@
 <link rel="stylesheet" href="{% static 'project2/style.css' %}">
 {% endblock %}
 
+
 {% block content %}
+
+<!-- <h1>{{ title }}</h1>
+<p>Task 1: Decision Tree on Palmer Penguins dataset</p>
+<p><strong>Test Accuracy:</strong> {{ accuracy|floatformat:2 }}</p>
+<p><strong>Number of leaves:</strong> {{ n_leaves }}</p> -->
+
 <h1>{{ title }}</h1>
 
-<p>Task 1: Decision Tree on Palmer Penguins dataset</p>
+<p>Task 2: Decision Tree Regularization</p>
 
 <p><strong>Test Accuracy:</strong> {{ accuracy|floatformat:2 }}</p>
 <p><strong>Number of leaves:</strong> {{ n_leaves }}</p>
+<p><strong>Chosen λ:</strong> {{ lambda_value }}</p>
+
 {% endblock %}
