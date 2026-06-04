@@ -21,4 +21,13 @@
 <p><strong>Number of leaves:</strong> {{ n_leaves }}</p>
 <p><strong>Chosen λ:</strong> {{ lambda_value }}</p>
 
+<!-- Slider to select lambda -->
+<form method="post" id="lambda-form">
+    {% csrf_token %}
+    <label for="lambda-slider">Choose λ (0 to 1):</label>
+    <input type="range" id="lambda-slider" name="lambda_value" min="0" max="1" step="0.01" value="{{ lambda_value }}" oninput="lambdaValue.innerText = this.value">
+    <span id="lambdaValue">{{ lambda_value }}</span>
+    <br><br>
+    <button type="submit">Update</button>
+</form>
 {% endblock %}
