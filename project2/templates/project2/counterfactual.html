@@ -1,0 +1,69 @@
+{% extends "project1/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project1/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="section-head">Task 4: Counterfactual Explanations</div>
+  <div class="section-desc">Select an example and a target label to generate counterfactuals.</div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="field-group">
+      <label for="example_index">Select Example x:</label>
+      <select name="example_index" id="example_index" class="form-control">
+        {% for idx in example_options %}
+          <option value="{{ idx }}" {% if idx == selected_idx %}selected{% endif %}>{{ idx }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label for="target_label">Select Target Label:</label>
+      <select name="target_label" id="target_label" class="form-control">
+        {% for label in species_options %}
+          <option value="{{ label }}" {% if label == target_label %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Generate Counterfactuals</button>
+  </form>
+
+  <div class="metric-grid" style="margin-top:20px;">
+    <div class="metric-card">
+      <div class="m-label">Selected Example x</div>
+      <div class="m-value">
+        <ul>
+          {% for val in x %}
+            <li>{{ val }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="m-label">Target Label</div>
+      <div class="m-value">{{ target_label }}</div>
+    </div>
+  </div>
+
+  <div class="section-head" style="margin-top:20px;">Top Counterfactuals</div>
+  {% if top_counterfactuals.size > 0 %}
+    <ul class="list-group">
+      {% for cf in top_counterfactuals %}
+        <li class="list-group-item">
+          {% for val in cf %}
+            {{ val }}{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No counterfactuals found for this target label.</p>
+  {% endif %}
+</div>
+{% endblock %}

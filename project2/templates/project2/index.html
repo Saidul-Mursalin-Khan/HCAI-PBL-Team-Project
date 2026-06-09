@@ -1,33 +1,38 @@
-{% extends 'base.html' %}
+{% extends "project1/base.html" %}
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'project2/style.css' %}">
+<link rel="stylesheet" href="{% static 'project1/style.css' %}">
 {% endblock %}
 
-
 {% block content %}
+<div class="card">
+  <div class="section-head">Task 3: Logistic Regression</div>
+  <div class="section-desc">Adjust the regularization parameter λ and observe the effect on model complexity and accuracy.</div>
 
-<!-- <h1>{{ title }}</h1>
-<p>Task 1: Decision Tree on Palmer Penguins dataset</p>
-<p><strong>Test Accuracy:</strong> {{ accuracy|floatformat:2 }}</p>
-<p><strong>Number of leaves:</strong> {{ n_leaves }}</p> -->
+  <div class="metric-grid">
+    <div class="metric-card">
+      <div class="m-label">Test Accuracy</div>
+      <div class="m-value">{{ accuracy|floatformat:2 }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">Model Complexity (L1 norm)</div>
+      <div class="m-value">{{ complexity|floatformat:2 }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">Chosen λ</div>
+      <div class="m-value">{{ lambda_value }}</div>
+    </div>
+  </div>
 
-<h1>{{ title }}</h1>
-
-<p>Task 2: Decision Tree Regularization</p>
-
-<p><strong>Test Accuracy:</strong> {{ accuracy|floatformat:2 }}</p>
-<p><strong>Number of leaves:</strong> {{ n_leaves }}</p>
-<p><strong>Chosen λ:</strong> {{ lambda_value }}</p>
-
-<!-- Slider to select lambda -->
-<form method="post" id="lambda-form">
+  <form method="post">
     {% csrf_token %}
-    <label for="lambda-slider">Choose λ (0 to 1):</label>
-    <input type="range" id="lambda-slider" name="lambda_value" min="0" max="1" step="0.01" value="{{ lambda_value }}" oninput="lambdaValue.innerText = this.value">
+    <label for="lambda-slider">Adjust λ:</label>
+    <input type="range" id="lambda-slider" name="lambda_value" min="0.01" max="1" step="0.01"
+           value="{{ lambda_value }}" oninput="lambdaValue.innerText=this.value">
     <span id="lambdaValue">{{ lambda_value }}</span>
     <br><br>
-    <button type="submit">Update</button>
-</form>
+    <button type="submit" class="btn btn-primary">Update</button>
+  </form>
+</div>
 {% endblock %}
