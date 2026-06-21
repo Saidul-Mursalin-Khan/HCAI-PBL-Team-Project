@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import os, uuid
 from django.shortcuts import render, redirect
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
@@ -14,6 +13,8 @@ from sklearn.metrics import (
     r2_score, mean_absolute_error,
     mean_squared_error, mean_absolute_percentage_error
 )
+
+from .common import save_plot
 
 MODELS = {
     'linear_regression': LinearRegression,
@@ -31,16 +32,6 @@ HYPERPARAMS = {
     'svr':               {'C': float, 'kernel': str},
 }
 
-MEDIA_ROOT = 'media/plots/'
-
-def save_fig(fig, name):
-    os.makedirs(MEDIA_ROOT, exist_ok=True)
-    filename = f"{name}_{uuid.uuid4().hex[:8]}.png"
-    path = os.path.join(MEDIA_ROOT, filename)
-    fig.savefig(path, bbox_inches='tight', facecolor='white')
-    plt.close(fig)
-    return '/' + path
-
 def regression_train(request):
 
     if request.session.get('problem_type') != 'regression':
@@ -55,8 +46,12 @@ def regression_train(request):
     if request.method == 'GET':
         request.session['training_completed'] = False
 
-    with open(split_path, 'rb') as f:
-        split = pickle.load(f)
+    try:
+        with open(split_path, 'rb') as f:
+            split = pickle.load(f)
+    except (OSError, pickle.PickleError, EOFError):
+        request.session.pop('split_path', None)
+        return redirect('project1:configure')
 
     X_train = split['X_train']
     X_test  = split['X_test']
@@ -65,12 +60,22 @@ def regression_train(request):
 
     results = None
     selected_model = None
+    error = None
 
     if request.method == 'POST':
 
         model_key = request.POST.get('model')
 
         selected_model = model_key
+
+        if model_key not in MODELS:
+            return render(request, 'project1/regression.html', {
+                'models': list(MODELS.keys()),
+                'hyperparams': HYPERPARAMS,
+                'results': None,
+                'selected_model': selected_model,
+                'error': 'Select a valid regression model.',
+            })
 
         kwargs = {}
 
@@ -85,114 +90,119 @@ def regression_train(request):
                 except ValueError:
                     pass
 
-        ModelClass = MODELS[model_key]
+        try:
+            ModelClass = MODELS[model_key]
+            model = ModelClass(**kwargs)
 
-        model = ModelClass(**kwargs)
+            # TRAIN MODEL
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+        except ValueError as exc:
+            error = f'Could not train this model: {exc}'
+        else:
+            # ONLY AFTER TRAINING
+            request.session['training_completed'] = True
 
-        # TRAIN MODEL
-        model.fit(X_train, y_train)
+            r2 = r2_score(y_test, y_pred)
 
-        # ONLY AFTER TRAINING
-        request.session['training_completed'] = True
+            n = len(y_test)
 
-        y_pred = model.predict(X_test)
+            p = X_test.shape[1]
 
-        r2 = r2_score(y_test, y_pred)
+            if n - p - 1 > 0:
+                adj_r2 = 1 - (1 - r2) * (n - 1) / (n - p - 1)
+            else:
+                adj_r2 = None
 
-        n = len(y_test)
+            mse = mean_squared_error(y_test, y_pred)
 
-        p = X_test.shape[1]
+            rmse = np.sqrt(mse)
 
-        adj_r2 = 1 - (1 - r2) * (n - 1) / (n - p - 1)
+            mae = mean_absolute_error(y_test, y_pred)
 
-        mse = mean_squared_error(y_test, y_pred)
+            mape = mean_absolute_percentage_error(y_test, y_pred)
 
-        rmse = np.sqrt(mse)
+            results = {
+                'r2': round(r2, 4),
 
-        mae = mean_absolute_error(y_test, y_pred)
+                'adj_r2': round(adj_r2, 4) if adj_r2 is not None else 'N/A',
 
-        mape = mean_absolute_percentage_error(y_test, y_pred)
+                'mae': round(mae, 4),
 
-        results = {
-            'r2': round(r2, 4),
+                'mse': round(mse, 4),
 
-            'adj_r2': round(adj_r2, 4),
+                'rmse': round(rmse, 4),
 
-            'mae': round(mae, 4),
+                'mape': round(mape * 100, 2),
+            }
 
-            'mse': round(mse, 4),
+            # ACTUAL VS PREDICTED
+            fig, ax = plt.subplots(figsize=(6, 5))
 
-            'rmse': round(rmse, 4),
+            ax.scatter(
+                y_test,
+                y_pred,
+                alpha=0.6,
+                color='steelblue'
+            )
 
-            'mape': round(mape * 100, 2),
-        }
+            mn = min(y_test.min(), y_pred.min())
 
-        # ACTUAL VS PREDICTED
-        fig, ax = plt.subplots(figsize=(6, 5))
+            mx = max(y_test.max(), y_pred.max())
 
-        ax.scatter(
-            y_test,
-            y_pred,
-            alpha=0.6,
-            color='steelblue'
-        )
+            ax.plot(
+                [mn, mx],
+                [mn, mx],
+                'r--',
+                label='Perfect fit'
+            )
 
-        mn = min(y_test.min(), y_pred.min())
+            ax.set_xlabel('Actual')
 
-        mx = max(y_test.max(), y_pred.max())
+            ax.set_ylabel('Predicted')
 
-        ax.plot(
-            [mn, mx],
-            [mn, mx],
-            'r--',
-            label='Perfect fit'
-        )
+            ax.set_title('Actual vs Predicted')
 
-        ax.set_xlabel('Actual')
+            ax.legend()
 
-        ax.set_ylabel('Predicted')
+            results['actual_vs_pred_img'] = save_plot(
+                fig,
+                'actual_vs_pred'
+            )
 
-        ax.set_title('Actual vs Predicted')
+            # RESIDUALS
+            residuals = y_test - y_pred
 
-        ax.legend()
+            fig, ax = plt.subplots(figsize=(6, 4))
 
-        results['actual_vs_pred_img'] = save_fig(
-            fig,
-            'actual_vs_pred'
-        )
+            ax.scatter(
+                y_pred,
+                residuals,
+                alpha=0.6,
+                color='coral'
+            )
 
-        # RESIDUALS
-        residuals = y_test - y_pred
+            ax.axhline(
+                0,
+                color='black',
+                linestyle='--'
+            )
 
-        fig, ax = plt.subplots(figsize=(6, 4))
+            ax.set_xlabel('Predicted')
 
-        ax.scatter(
-            y_pred,
-            residuals,
-            alpha=0.6,
-            color='coral'
-        )
+            ax.set_ylabel('Residuals')
 
-        ax.axhline(
-            0,
-            color='black',
-            linestyle='--'
-        )
+            ax.set_title('Residual Plot')
 
-        ax.set_xlabel('Predicted')
-
-        ax.set_ylabel('Residuals')
-
-        ax.set_title('Residual Plot')
-
-        results['residuals_img'] = save_fig(
-            fig,
-            'residuals'
-        )
+            results['residuals_img'] = save_plot(
+                fig,
+                'residuals'
+            )
 
     return render(request, 'project1/regression.html', {
         'models': list(MODELS.keys()),
         'hyperparams': HYPERPARAMS,
         'results': results,
         'selected_model': selected_model,
+        'error': error,
     })

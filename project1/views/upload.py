@@ -1,6 +1,7 @@
 import pandas as pd
 from django.shortcuts import render, redirect
 from ..models import UploadedDataset
+from .common import MAX_UPLOAD_SIZE, read_csv_dataset
 
 def upload(request):
     error = None
@@ -8,8 +9,10 @@ def upload(request):
         uploaded_file = request.FILES['dataset']
 
         # Validate CSV
-        if not uploaded_file.name.endswith('.csv'):
+        if not uploaded_file.name.lower().endswith('.csv'):
             error = "Only CSV files are supported."
+        elif uploaded_file.size > MAX_UPLOAD_SIZE:
+            error = "The uploaded CSV is larger than 50 MB."
         else:
             # Save to DB & disk
             obj = UploadedDataset(file=uploaded_file)
@@ -17,8 +20,11 @@ def upload(request):
 
             file_path = obj.file.path  # absolute path on disk
 
-            # Parse CSV
-            df = pd.read_csv(file_path)
+            try:
+                df = read_csv_dataset(file_path)
+            except ValueError as exc:
+                obj.delete()
+                return render(request, 'project1/upload.html', {'error': str(exc)})
 
             # Store in session
             request.session['dataset_path'] = file_path

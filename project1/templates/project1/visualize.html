@@ -5,6 +5,10 @@
 <div class="step-nav-title">Exploratory data analysis</div>
 <div class="step-nav-desc">Understand your data before training — distributions, correlations, class balance, and missing values.</div>
 
+{% for warning in warnings %}
+<div class="alert alert-info"><i class="ti ti-info-circle"></i> {{ warning }}</div>
+{% endfor %}
+
 <!-- Summary stats -->
 <div class="stats-row">
   <div class="stat-card">

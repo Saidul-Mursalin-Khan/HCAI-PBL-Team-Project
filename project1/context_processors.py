@@ -5,7 +5,8 @@ def stepper_context(request):
         (1, 'Upload & View Dataset'),
         (2, 'Configure'),
         (3, 'Data Visualization'),
-        (4, 'Training & Result'),
+        (4, 'Model Training'),
+        (5, 'Results'),
     ]
 
     training_completed = request.session.get('training_completed', False)

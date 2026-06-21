@@ -3,7 +3,7 @@
 
 {% if results %}
 <!-- ===== STEP 6: RESULTS ===== -->
-<div class="step-nav-label">Step 4 & 5 of 5</div>
+<div class="step-nav-label">Step 5 of 5</div>
 <div class="step-nav-title">Training results</div>
 <div class="step-nav-desc">Model performance on the held-out test set.</div>
 
@@ -68,9 +68,13 @@
 
 {% else %}
 <!-- ===== STEP 5: MODEL SELECTION ===== -->
-<div class="step-nav-label">Step 5 of 6</div>
+<div class="step-nav-label">Step 4 of 5</div>
 <div class="step-nav-title">Select model &amp; hyperparameters</div>
 <div class="step-nav-desc">Pick a regression algorithm and tune its parameters before training.</div>
+
+{% if error %}
+<div class="alert alert-danger"><i class="ti ti-alert-circle"></i> {{ error }}</div>
+{% endif %}
 
 <form method="post" action="{% url 'project1:regression' %}" id="train-form">
   {% csrf_token %}

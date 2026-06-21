@@ -1,0 +1,27 @@
+<div class="plot-card">
+  <div class="plot-header"><i class="ti ti-chart-line"></i> {{ plot.title }}</div>
+  <svg viewBox="0 0 360 220" role="img" aria-label="{{ plot.title }} plot" style="width:100%;height:auto;display:block;background:white;">
+    <line x1="36" y1="40" x2="36" y2="170" stroke="#d7deeb" stroke-width="1" />
+    <line x1="36" y1="170" x2="336" y2="170" stroke="#d7deeb" stroke-width="1" />
+    <text x="36" y="192" font-size="10" fill="#5a6478">{{ plot.x_min }}</text>
+    <text x="304" y="192" font-size="10" fill="#5a6478">{{ plot.x_max }}</text>
+    <text x="8" y="44" font-size="10" fill="#5a6478">{{ plot.y_max }}</text>
+    <text x="8" y="172" font-size="10" fill="#5a6478">{{ plot.y_min }}</text>
+    {% for line in plot.series %}
+      <polyline points="{{ line.points }}" fill="none" stroke="{{ line.color }}" stroke-width="2.5" />
+    {% endfor %}
+    <g transform="translate(36,204)">
+      {% for line in plot.series %}
+        <circle cx="{{ forloop.counter0|add:0 }}" cy="0" r="0"></circle>
+      {% endfor %}
+    </g>
+  </svg>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--border);">
+    {% for line in plot.series %}
+      <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);">
+        <span style="width:10px;height:10px;border-radius:50%;background:{{ line.color }};display:inline-block;"></span>
+        {{ line.class_name }}
+      </span>
+    {% endfor %}
+  </div>
+</div>

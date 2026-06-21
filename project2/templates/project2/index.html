@@ -1,38 +1,357 @@
 {% extends "project1/base.html" %}
-{% load static %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'project1/style.css' %}">
-{% endblock %}
 
 {% block content %}
-<div class="card">
-  <div class="section-head">Task 3: Logistic Regression</div>
-  <div class="section-desc">Adjust the regularization parameter λ and observe the effect on model complexity and accuracy.</div>
+<div class="step-nav-label">Project 2</div>
+<div class="step-nav-title">Explainability for Palmer Penguins</div>
+<div class="step-nav-desc">Use the stages below to move through data, model regularization, counterfactuals, and feature effects.</div>
 
+<div class="card">
+  <div class="section-head">Project Stages</div>
+  <div class="btn-row" style="justify-content:flex-start;flex-wrap:wrap;margin-top:0;">
+    {% for link in stage_links %}
+      <a class="btn {% if stage == link.number %}btn-primary{% else %}btn-outline{% endif %}" href="{{ link.url }}">
+        {{ link.number }}. {{ link.label }}
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+{% if stage == 1 %}
+<div class="card">
+  <div class="section-head">Stage 1: Data</div>
   <div class="metric-grid">
     <div class="metric-card">
-      <div class="m-label">Test Accuracy</div>
-      <div class="m-value">{{ accuracy|floatformat:2 }}</div>
+      <div class="m-label">Rows</div>
+      <div class="m-value">{{ total_count }}</div>
     </div>
     <div class="metric-card">
-      <div class="m-label">Model Complexity (L1 norm)</div>
-      <div class="m-value">{{ complexity|floatformat:2 }}</div>
+      <div class="m-label">Train Rows</div>
+      <div class="m-value">{{ train_count }}</div>
     </div>
     <div class="metric-card">
-      <div class="m-label">Chosen λ</div>
-      <div class="m-value">{{ lambda_value }}</div>
+      <div class="m-label">Test Rows</div>
+      <div class="m-value">{{ test_count }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">Target</div>
+      <div class="m-value" style="font-size:20px">species</div>
     </div>
   </div>
 
-  <form method="post">
-    {% csrf_token %}
-    <label for="lambda-slider">Adjust λ:</label>
-    <input type="range" id="lambda-slider" name="lambda_value" min="0.01" max="1" step="0.01"
-           value="{{ lambda_value }}" oninput="lambdaValue.innerText=this.value">
-    <span id="lambdaValue">{{ lambda_value }}</span>
-    <br><br>
-    <button type="submit" class="btn btn-primary">Update</button>
-  </form>
+  <div class="table-wrap" style="margin-bottom:20px;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Type</th>
+          <th>Values</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in dataset_rows %}
+          <tr>
+            <td>{{ row.feature }}</td>
+            <td>{{ row.type }}</td>
+            <td>{{ row.detail }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-head">Preview</div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          {% for header in preview_headers %}
+            <th>{{ header }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in preview_rows %}
+          <tr>
+            {% for value in row %}
+              <td>{{ value }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn btn-primary" href="?stage=2&model_type={{ model_type }}&lambda_value={{ lambda_value }}&example_index={{ example_index }}&target_label={{ target_label }}&feature={{ selected_feature }}">
+      <i class="ti ti-arrow-right"></i> Continue to Models
+    </a>
+  </div>
 </div>
+{% endif %}
+
+{% if stage == 2 %}
+<form method="post" class="card">
+  {% csrf_token %}
+  <input type="hidden" name="stage" value="2">
+  <input type="hidden" name="example_index" value="{{ example_index }}">
+  <input type="hidden" name="target_label" value="{{ target_label }}">
+  <input type="hidden" name="feature" value="{{ selected_feature }}">
+
+  <div class="section-head">Stage 2: Model and Regularization</div>
+  <div class="param-grid">
+    <div class="field-group">
+      <label class="field-label" for="model-type">Model class</label>
+      <select name="model_type" id="model-type">
+        {% for value, label in model_choices %}
+          <option value="{{ value }}" {% if model_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="lambda-slider">Lambda: <span id="lambdaValue">{{ lambda_value }}</span></label>
+      <input type="range" id="lambda-slider" name="lambda_value" min="0" max="0.25" step="0.005" value="{{ lambda_value }}" oninput="lambdaValue.innerText=this.value">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button type="submit" class="btn btn-primary"><i class="ti ti-refresh"></i> Update Model</button>
+  </div>
+</form>
+
+<div class="card">
+  <div class="section-head">Tasks 1-3: Selected {{ model_label }}</div>
+  <div class="metric-grid">
+    <div class="metric-card">
+      <div class="m-label">Test Accuracy</div>
+      <div class="m-value">{{ selected.accuracy|floatformat:3 }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">Complexity</div>
+      <div class="m-value">{{ selected.complexity|floatformat:2 }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">Objective</div>
+      <div class="m-value">{{ selected.score|floatformat:3 }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">Setting</div>
+      <div class="m-value" style="font-size:18px">{{ selected.label }}</div>
+    </div>
+  </div>
+
+  <div class="table-wrap" style="margin-bottom:20px;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Accuracy</th>
+          <th>Complexity</th>
+          <th>Accuracy - lambda * complexity</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in candidate_rows %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td>{{ row.accuracy|floatformat:3 }}</td>
+            <td>{{ row.complexity|floatformat:3 }}</td>
+            <td>{{ row.score|floatformat:3 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if summary.type == "tree" %}
+    <div class="section-head">Decision Tree</div>
+    <div class="result-plot" style="max-width:100%;overflow:auto;background:#f7f9fc;">
+      <img src="{{ summary.image_uri }}" alt="Decision tree visualization" style="min-width:100%;display:block;">
+    </div>
+    <details style="margin-top:12px;">
+      <summary style="cursor:pointer;font-size:12px;font-weight:600;color:var(--text-muted);">Text view</summary>
+      <pre style="background:#f7f9fc;border:1px solid var(--border);border-radius:8px;padding:16px;overflow:auto;font-family:var(--mono);font-size:12px;line-height:1.55;">{{ summary.tree_text }}</pre>
+    </details>
+  {% else %}
+    <div class="section-head">Largest Logistic Coefficients</div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Species</th>
+            <th>Feature</th>
+            <th>Coefficient</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for class_row in summary.rows %}
+            {% for coef in class_row.coefficients %}
+              <tr>
+                <td>{{ class_row.class_name }}</td>
+                <td>{{ coef.feature }}</td>
+                <td>{{ coef.value|floatformat:3 }}</td>
+              </tr>
+            {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if stage == 3 %}
+<form method="post" class="card">
+  {% csrf_token %}
+  <input type="hidden" name="stage" value="3">
+  <input type="hidden" name="feature" value="{{ selected_feature }}">
+
+  <div class="section-head">Stage 3: Counterfactual Explanations</div>
+  <div class="param-grid">
+    <div class="field-group">
+      <label class="field-label" for="cf-model-type">Model class</label>
+      <select name="model_type" id="cf-model-type">
+        {% for value, label in model_choices %}
+          <option value="{{ value }}" {% if model_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="cf-lambda-slider">Lambda: <span id="cfLambdaValue">{{ lambda_value }}</span></label>
+      <input type="range" id="cf-lambda-slider" name="lambda_value" min="0" max="0.25" step="0.005" value="{{ lambda_value }}" oninput="cfLambdaValue.innerText=this.value">
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="example-index">Example x</label>
+      <select name="example_index" id="example-index">
+        {% for idx in example_options %}
+          <option value="{{ idx }}" {% if idx == example_index %}selected{% endif %}>Row {{ idx }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="target-label">Target species</label>
+      <select name="target_label" id="target-label">
+        {% for label in classes %}
+          <option value="{{ label }}" {% if label == target_label %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button type="submit" class="btn btn-primary"><i class="ti ti-refresh"></i> Generate Counterfactuals</button>
+  </div>
+</form>
+
+<div class="card">
+  <div class="section-head">Counterfactual Results</div>
+  <div class="metric-grid">
+    <div class="metric-card">
+      <div class="m-label">Model</div>
+      <div class="m-value" style="font-size:20px">{{ model_label }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">Selected Row</div>
+      <div class="m-value">{{ example_index }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">Target Label</div>
+      <div class="m-value" style="font-size:20px">{{ target_label }}</div>
+    </div>
+  </div>
+
+  <div class="table-wrap" style="margin-bottom:20px;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Selected x</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in selected_example %}
+          <tr>
+            <td>{{ item.feature }}</td>
+            <td>{{ item.value }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if counterfactuals %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>MAD-weighted L1</th>
+            {% for feature in selected_example %}
+              <th>{{ feature.feature }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for cf in counterfactuals %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ cf.distance|floatformat:3 }}</td>
+              {% for value in cf.values %}
+                <td>{{ value.value }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="alert alert-info"><i class="ti ti-info-circle"></i> No counterfactuals were found for this target with the current settings.</div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if stage == 4 %}
+<form method="post" class="card">
+  {% csrf_token %}
+  <input type="hidden" name="stage" value="4">
+  <input type="hidden" name="example_index" value="{{ example_index }}">
+  <input type="hidden" name="target_label" value="{{ target_label }}">
+
+  <div class="section-head">Stage 4: Feature Effect Plots</div>
+  <div class="param-grid">
+    <div class="field-group">
+      <label class="field-label" for="fx-model-type">Model class</label>
+      <select name="model_type" id="fx-model-type">
+        {% for value, label in model_choices %}
+          <option value="{{ value }}" {% if model_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="fx-lambda-slider">Lambda: <span id="fxLambdaValue">{{ lambda_value }}</span></label>
+      <input type="range" id="fx-lambda-slider" name="lambda_value" min="0" max="0.25" step="0.005" value="{{ lambda_value }}" oninput="fxLambdaValue.innerText=this.value">
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="feature">Feature</label>
+      <select name="feature" id="feature">
+        {% for feature in features %}
+          <option value="{{ feature }}" {% if feature == selected_feature %}selected{% endif %}>{{ feature }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button type="submit" class="btn btn-primary"><i class="ti ti-refresh"></i> Update Plots</button>
+  </div>
+</form>
+
+<div class="card">
+  <div class="section-head">PDP and ALE for {{ selected_feature }}</div>
+  <div class="alert alert-info"><i class="ti ti-chart-line"></i> {{ effect_note }}</div>
+  <div class="plot-grid">
+    {% include "project2/plot.html" with plot=pdp %}
+    {% include "project2/plot.html" with plot=ale %}
+  </div>
+</div>
+{% endif %}
 {% endblock %}

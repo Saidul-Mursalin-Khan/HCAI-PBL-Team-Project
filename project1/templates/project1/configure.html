@@ -1,7 +1,7 @@
 {% extends "project1/base.html" %}
 {% block content %}
 
-<div class="step-nav-label">Step 2–3 of 5</div>
+<div class="step-nav-label">Step 2 of 5</div>
 <div class="step-nav-title">Select target &amp; configure</div>
 <div class="step-nav-desc">Choose which column the model should predict, then set your train/test split.</div>
 
@@ -29,7 +29,7 @@
       {% for col in columns %}
       <div class="target-pill {% if col == target_column %}selected{% endif %}"
           id="pill-{{ col|slugify }}"
-          onclick="selectTarget(`{{ col }}`)">
+          data-column="{{ col }}">
         {{ col }}
       </div>
       {% endfor %}
@@ -115,16 +115,16 @@
 {% endblock %}
 
 {% block extra_js %}
+{{ column_types|json_script:"column-types-data" }}
 <script>
 // Column type map from server
-const columnTypes = {{ column_types_json|safe }};
+const columnTypes = JSON.parse(document.getElementById('column-types-data').textContent);
 
 function selectTarget(col) {
   document.querySelectorAll('.target-pill').forEach(p => p.classList.remove('selected'));
-  const safeid = col.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
   // Try to find the pill by matching text content
   document.querySelectorAll('.target-pill').forEach(p => {
-    if (p.textContent.trim() === col) p.classList.add('selected');
+    if (p.dataset.column === col) p.classList.add('selected');
   });
 
   document.getElementById('target-hidden').value = col;
@@ -156,5 +156,9 @@ function updateSplit(v) {
   document.getElementById('split-test-lbl').textContent = 'Test: ' + pct + '%';
   document.getElementById('test-size-hidden').value = (pct / 100).toFixed(2);
 }
+
+document.querySelectorAll('.target-pill').forEach(pill => {
+  pill.addEventListener('click', () => selectTarget(pill.dataset.column));
+});
 </script>
 {% endblock %}
