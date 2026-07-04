@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Project 1 — AutoML</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'project1/style.css' %}">
+</head>
+<body>
+  <nav>
+    <a href="{% url 'project1:upload' %}">Upload</a>
+    <a href="{% url 'project1:visualize' %}">Visualize</a>
+    <a href="{% url 'project1:configure' %}">Configure</a>
+  </nav>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

@@ -1,0 +1,50 @@
+{% extends "project1/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project1/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="section-head">Task 5: Feature Effect Plots</div>
+  <div class="section-desc">Partial Dependence Plot (PDP) and Accumulated Local Effects (ALE) for numerical features.</div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="field-group">
+      <label for="feature">Select Feature:</label>
+      <select name="feature" id="feature" class="form-control">
+        {% for f in features %}
+          <option value="{{ f }}" {% if f == feature %}selected{% endif %}>{{ f }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Show PDP & ALE</button>
+  </form>
+
+  <div class="metric-grid" style="margin-top:20px;">
+    <div class="metric-card">
+      <div class="m-label">Partial Dependence Plot (simplified)</div>
+      <div class="m-value">
+        <ul>
+          {% for val, y in pdp_data %}
+            <li>{{ val|floatformat:2 }} → {{ y }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="m-label">Accumulated Local Effects (ALE)</div>
+      <div class="m-value">
+        <ul>
+          {% for val, y in ale_data %}
+            <li>{{ val|floatformat:2 }} → {{ y }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

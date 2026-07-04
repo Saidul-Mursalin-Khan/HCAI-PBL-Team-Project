@@ -38,8 +38,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "home", 
-    "demos",
+    "home",
+    # "demos",
+    'project1',   # Supervised Learning Interface
+    'project2',   # Active Learning for Text Classification
+    'project3',   # Explainability
+    'project4',   # Influence of future predictions over active learning of users’ tastes for recommender systems
+    'project5',   # Reinforcement Learning with Human Feedback
 ]
 
 MIDDLEWARE = [
@@ -65,6 +70,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                'project1.context_processors.stepper_context',
             ],
         },
     },

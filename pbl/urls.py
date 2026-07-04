@@ -21,7 +21,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path("home/", include("home.urls")),
+    path("", include("home.urls")),
     path("admin/", admin.site.urls),
-    path("demos/", include("demos.urls")),
+    # path("demos/", include("demos.urls")),
+    path('project1/', include('project1.urls')),  # Supervised Learning
+    path('project2/', include('project2.urls')),  # Active Learning
+    path('project3/', include('project3.urls')),  # Explainability
+    path('project4/', include('project4.urls')),  # Recommender System
+    path('project5/', include('project5.urls')),  # RLHF
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

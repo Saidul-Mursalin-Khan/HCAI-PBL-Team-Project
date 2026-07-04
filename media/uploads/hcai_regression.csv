@@ -1,0 +1,9 @@
+age,color,target,class_label
+21,red,10,A
+,blue,20,B
+35,,30,A
+42,red,40,B
+30,blue,50,A
+28,red,60,B
+31,green,70,A
+44,blue,80,B

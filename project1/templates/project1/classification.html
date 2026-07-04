@@ -1,0 +1,198 @@
+{% extends "project1/base.html" %}
+{% block content %}
+
+{% if results %}
+<!-- ===== STEP 6: RESULTS ===== -->
+<div class="step-nav-label">Step 5 of 5</div>
+<div class="step-nav-title">Training results</div>
+<div class="step-nav-desc">Model performance on the held-out test set.</div>
+
+<div class="alert alert-success">
+  <i class="ti ti-circle-check"></i>
+  <span>Training complete — <strong>{{ selected_model|title }}</strong> fitted successfully.</span>
+</div>
+
+<!-- METRICS -->
+<div class="section-head">Performance metrics</div>
+<div class="metric-grid">
+  <div class="metric-card">
+    <div class="m-label">Accuracy</div>
+    <div class="m-value">{{ results.accuracy_pct }}<span style="font-size:14px">%</span></div>
+    <div class="m-bar"><div class="m-bar-fill" style="width:{{ results.accuracy_pct }}%"></div></div>
+  </div>
+  <div class="metric-card">
+    <div class="m-label">Precision</div>
+    <div class="m-value">{{ results.precision_pct }}<span style="font-size:14px">%</span></div>
+    <div class="m-bar"><div class="m-bar-fill" style="width:{{ results.precision_pct }}%"></div></div>
+  </div>
+  <div class="metric-card">
+    <div class="m-label">Recall</div>
+    <div class="m-value">{{ results.recall_pct }}<span style="font-size:14px">%</span></div>
+    <div class="m-bar"><div class="m-bar-fill" style="width:{{ results.recall_pct }}%"></div></div>
+  </div>
+  <div class="metric-card">
+    <div class="m-label">F1 Score</div>
+    <div class="m-value">{{ results.f1_pct }}<span style="font-size:14px">%</span></div>
+    <div class="m-bar"><div class="m-bar-fill" style="width:{{ results.f1_pct }}%"></div></div>
+  </div>
+  {% if results.roc_auc %}
+  <div class="metric-card">
+    <div class="m-label">ROC-AUC</div>
+    <div class="m-value">{{ results.roc_auc_pct }}<span style="font-size:14px">%</span></div>
+    <div class="m-bar"><div class="m-bar-fill" style="width:{{ results.roc_auc_pct }}%"></div></div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- CONFUSION MATRIX IMAGE -->
+{% if results.confusion_matrix_img %}
+<div class="section-head">Confusion matrix</div>
+<div class="result-plot roc-container">
+  <img src="{{ results.confusion_matrix_img }}" alt="Confusion Matrix">
+</div>
+{% endif %}
+
+<!-- ROC CURVE IMAGE -->
+{% if results.roc_img %}
+<div class="section-head">ROC curve</div>
+<div class="result-plot roc-container">
+  {% if results.roc_auc %}
+  <div class="auc-badge">AUC = {{ results.roc_auc }}</div>
+  {% endif %}
+  <img src="{{ results.roc_img }}" alt="ROC Curve">
+</div>
+{% endif %}
+
+<div class="btn-row" style="margin-top:8px">
+  <a href="{% url 'project1:classification' %}" class="btn btn-outline">
+    <i class="ti ti-refresh"></i> Retrain with different model
+  </a>
+  <a href="{% url 'project1:upload' %}" class="btn btn-outline">
+    <i class="ti ti-plus"></i> New Experiment
+  </a>
+</div>
+
+{% else %}
+<!-- ===== STEP 5: MODEL SELECTION ===== -->
+<div class="step-nav-label">Step 4 of 5</div>
+<div class="step-nav-title">Select model &amp; hyperparameters</div>
+<div class="step-nav-desc">Pick a classification algorithm and tune its parameters before training.</div>
+
+{% if error %}
+<div class="alert alert-danger"><i class="ti ti-alert-circle"></i> {{ error }}</div>
+{% endif %}
+
+<form method="post" action="{% url 'project1:classification' %}" id="train-form">
+  {% csrf_token %}
+  <input type="hidden" name="model" id="model-hidden" value="">
+
+  <div class="card">
+    <div class="section-head">Algorithm</div>
+    <div class="model-grid">
+      <div class="model-card" id="mc-logistic_regression" onclick="selectModel('logistic_regression')">
+        <i class="ti ti-line-dashed"></i>
+        <div class="mc-name">Logistic Regression</div>
+        <div class="mc-desc">Linear boundary</div>
+      </div>
+      <div class="model-card" id="mc-decision_tree" onclick="selectModel('decision_tree')">
+        <i class="ti ti-binary-tree"></i>
+        <div class="mc-name">Decision Tree</div>
+        <div class="mc-desc">Rule-based splits</div>
+      </div>
+      <div class="model-card" id="mc-random_forest" onclick="selectModel('random_forest')">
+        <i class="ti ti-trees"></i>
+        <div class="mc-name">Random Forest</div>
+        <div class="mc-desc">Ensemble of trees</div>
+      </div>
+      <div class="model-card" id="mc-knn" onclick="selectModel('knn')">
+        <i class="ti ti-circles"></i>
+        <div class="mc-name">K-Nearest Neighbors</div>
+        <div class="mc-desc">Distance-based</div>
+      </div>
+      <div class="model-card" id="mc-naive_bayes" onclick="selectModel('naive_bayes')">
+        <i class="ti ti-math-function"></i>
+        <div class="mc-name">Naive Bayes</div>
+        <div class="mc-desc">Probabilistic</div>
+      </div>
+      <div class="model-card" id="mc-svm" onclick="selectModel('svm')">
+        <i class="ti ti-vector-bezier-2"></i>
+        <div class="mc-name">SVM</div>
+        <div class="mc-desc">Max-margin classifier</div>
+      </div>
+    </div>
+
+    <!-- HYPERPARAMS (shown after model selection) -->
+    <div id="hyperparam-box" class="param-box">
+      <h4><i class="ti ti-adjustments"></i> Hyperparameters</h4>
+      <div class="param-grid" id="param-grid"></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <a href="{% url 'project1:visualize' %}" class="btn btn-outline">
+      <i class="ti ti-arrow-left"></i> Back
+    </a>
+    <button type="submit" class="btn btn-primary" id="btn-train" disabled>
+      Train Model <i class="ti ti-player-play"></i>
+    </button>
+  </div>
+</form>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{% if not results %}
+<script>
+const HYPERPARAMS = {
+  logistic_regression: [
+    { id: 'C', label: 'Regularization (C)', type: 'number', val: 1.0, min: 0.01, step: 0.1 }
+  ],
+  decision_tree: [
+    { id: 'max_depth', label: 'Max Depth', type: 'number', val: 5, min: 1, step: 1 }
+  ],
+  random_forest: [
+    { id: 'n_estimators', label: 'N Estimators', type: 'number', val: 100, min: 10, step: 10 },
+    { id: 'max_depth', label: 'Max Depth', type: 'number', val: 5, min: 1, step: 1 }
+  ],
+  knn: [
+    { id: 'n_neighbors', label: 'K Neighbors', type: 'number', val: 5, min: 1, step: 1 }
+  ],
+  naive_bayes: [],
+  svm: [
+    { id: 'C', label: 'C', type: 'number', val: 1.0, min: 0.01, step: 0.1 },
+    { id: 'kernel', label: 'Kernel', type: 'select', options: ['rbf', 'linear', 'poly', 'sigmoid'], val: 'rbf' }
+  ]
+};
+
+function selectModel(id) {
+  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('mc-' + id).classList.add('selected');
+  document.getElementById('model-hidden').value = id;
+  document.getElementById('btn-train').disabled = false;
+
+  const params = HYPERPARAMS[id] || [];
+  const grid = document.getElementById('param-grid');
+  const box = document.getElementById('hyperparam-box');
+
+  if (params.length > 0) {
+    grid.innerHTML = params.map(p => {
+      if (p.type === 'select') {
+        return `<div>
+          <label class="field-label">${p.label}</label>
+          <select name="${p.id}">${p.options.map(o => `<option${o===p.val?' selected':''}>${o}</option>`).join('')}</select>
+        </div>`;
+      }
+      return `<div>
+        <label class="field-label">${p.label}</label>
+        <input type="number" name="${p.id}" value="${p.val}" min="${p.min}" step="${p.step}">
+      </div>`;
+    }).join('');
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
+}
+</script>
+{% endif %}
+{% endblock %}

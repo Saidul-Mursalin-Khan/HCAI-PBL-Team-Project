@@ -1,0 +1,54 @@
+{% extends 'project1/base.html' %}
+{% block content %}
+<h2>Regression Training</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <label>Model:</label>
+  <select name="model" onchange="showParams(this.value)">
+    {% for m in models %}
+      <option value="{{ m }}">{{ m|title }}</option>
+    {% endfor %}
+  </select>
+
+  <div id="param-decision_tree" class="params">
+    <label>Max Depth: <input type="number" name="max_depth" value="5" min="1"></label>
+  </div>
+  <div id="param-random_forest" class="params" style="display:none">
+    <label>N Estimators: <input type="number" name="n_estimators" value="100"></label>
+    <label>Max Depth: <input type="number" name="max_depth" value="5"></label>
+  </div>
+  <div id="param-knn" class="params" style="display:none">
+    <label>K Neighbors: <input type="number" name="n_neighbors" value="5"></label>
+  </div>
+  <div id="param-svr" class="params" style="display:none">
+    <label>C: <input type="number" name="C" value="1.0" step="0.1"></label>
+  </div>
+
+  <button type="submit">Train</button>
+</form>
+
+{% if results %}
+<h3>Regression Results</h3>
+<table>
+  <tr><th>Metric</th><th>Value</th></tr>
+  <tr><td>R²</td><td>{{ results.r2 }}</td></tr>
+  <tr><td>Adjusted R²</td><td>{{ results.adj_r2 }}</td></tr>
+  <tr><td>MAE</td><td>{{ results.mae }}</td></tr>
+  <tr><td>MSE</td><td>{{ results.mse }}</td></tr>
+  <tr><td>RMSE</td><td>{{ results.rmse }}</td></tr>
+  <tr><td>MAPE</td><td>{{ results.mape }}%</td></tr>
+</table>
+
+<img src="{{ results.actual_vs_pred_img }}" alt="Actual vs Predicted">
+<img src="{{ results.residuals_img }}" alt="Residuals">
+{% endif %}
+
+<script>
+function showParams(model) {
+  document.querySelectorAll('.params').forEach(d => d.style.display = 'none');
+  const el = document.getElementById('param-' + model);
+  if (el) el.style.display = 'block';
+}
+</script>
+{% endblock %}
