@@ -168,39 +168,40 @@ Before running this project collection, ensure that the following software is in
 # Setup and Run Project Locally
 
 # Step 1: Clone the Repository
-git clone <https://github.com/Saidul-Mursalin-Khan/HCAI-PBL-Team-Project.git>
+`git clone <https://github.com/Saidul-Mursalin-Khan/HCAI-PBL-Team-Project.git>`
 
 # Step 2: Create and Activate Virtual Environment
 # Create virtual environment
-python3 -m venv venv
+`python3 -m venv venv`
 
 # Activate virtual environment
 # On macOS/Linux:
-source venv/bin/activate
+`source venv/bin/activate`
 
 # On Windows:
-# venv\Scripts\activate
+# `venv\Scripts\activate`
 
 
 # Step 3: Install Dependencies
 # Ensure pip is up to date
-pip3 install --upgrade pip
+`pip3 install --upgrade pip`
 
 # Install project dependencies
-pip3 install -r requirements.txt
+`pip3 install -r requirements.txt`
 
 
 # Step 4: Set Up and Run Django Application
 # Run database migrations
-python3 manage.py migrate
+`python3 manage.py migrate`
 
 
 # Step 5: Additional command for project 3
- python manage.py run_expert_sim
- python manage.py run_deferral
- python manage.py run_active_learning
+ `python manage.py run_expert_sim`
+ `python manage.py run_deferral`
+ `python manage.py run_active_learning`
 
  # Step 6: Run the Development Server
- python3 manage.py runserver
+ `python3 manage.py runserver`
+ `python manage.py runserver`
 
-# The server will start at http://127.0.0.1:8000/
+# `The server will start at http://127.0.0.1:8000/`
