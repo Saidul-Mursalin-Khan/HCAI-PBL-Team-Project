@@ -3,28 +3,42 @@
 
 <div class="step-nav-label">Step 4 of 5</div>
 <div class="step-nav-title">Exploratory data analysis</div>
-<div class="step-nav-desc">Understand your data before training — distributions, correlations, class balance, and missing values.</div>
+<div class="step-nav-desc">
+  Before we teach the computer to make predictions, let's take a good look at your data —
+  like checking your ingredients before you start baking. This page shows you what your
+  data looks like, so you can spot anything unusual before moving on.
+</div>
 
 {% for warning in warnings %}
 <div class="alert alert-info"><i class="ti ti-info-circle"></i> {{ warning }}</div>
 {% endfor %}
+
+<!-- Plain-language intro box -->
+<div class="alert alert-info" style="margin-bottom:20px;">
+  <i class="ti ti-bulb"></i>
+  <strong>What's happening here?</strong> We've looked through every column in your
+  spreadsheet and drawn some pictures (called "charts") that show patterns humans can
+  spot at a glance — things like "most values are small" or "these two things tend to
+  go up together." You don't need to understand statistics to read these; just look
+  for anything that seems surprising or uneven.
+</div>
 
 <!-- Summary stats -->
 <div class="stats-row">
   <div class="stat-card">
     <div class="stat-label">Numeric cols</div>
     <div class="stat-value">{{ num_count }}</div>
-    <div class="stat-sub">quantitative features</div>
+    <div class="stat-sub">These are the columns with numbers (like age, price, or weight) that the computer can do math with.</div>
   </div>
   <div class="stat-card">
     <div class="stat-label">Plots</div>
     <div class="stat-value">{{ plots|length }}</div>
-    <div class="stat-sub">generated</div>
+    <div class="stat-sub">Charts we drew to help you understand your data at a glance.</div>
   </div>
   <div class="stat-card">
     <div class="stat-label">Target</div>
     <div class="stat-value" style="font-size:14px;padding-top:4px">{{ target_column }}</div>
-    <div class="stat-sub">prediction column</div>
+    <div class="stat-sub">This is the thing we're trying to predict — like the answer to a question.</div>
   </div>
 </div>
 
@@ -33,6 +47,13 @@
 <div class="section-head">Feature distributions</div>
 <div class="plot-card" style="margin-bottom:16px">
   <div class="plot-header"><i class="ti ti-chart-histogram" style="color:var(--blue)"></i> Histograms</div>
+  <div class="alert alert-info" style="margin:8px 0 12px;font-size:14px;">
+    <strong>Think of this like a bar chart of "how common" each value is.</strong>
+    Each bar shows how many rows in your data have a similar value. Tall bars mean
+    "lots of your data looks like this," short bars mean "this value is rare."
+    If most bars pile up on one side, your data may be lopsided (that's okay, just
+    good to know!).
+  </div>
   <img src="{{ plots.histogram }}" alt="Histograms" style="width:100%;height:auto;display:block">
 </div>
 {% endif %}
@@ -41,6 +62,12 @@
   {% if plots.boxplot %}
   <div class="plot-card">
     <div class="plot-header"><i class="ti ti-chart-candle" style="color:var(--blue)"></i> Box Plot</div>
+    <div class="alert alert-info" style="margin:8px 0 12px;font-size:14px;">
+      <strong>This shows the "typical range" for each number.</strong> The box covers
+      where most of your values sit, the line in the middle is the halfway point, and
+      any dots far away from the box are unusual values ("outliers") — like one very
+      tall person in a room full of average-height people.
+    </div>
     <img src="{{ plots.boxplot }}" alt="Box plot" style="width:100%;height:auto">
   </div>
   {% endif %}
@@ -48,6 +75,11 @@
   {% if plots.scatter %}
   <div class="plot-card">
     <div class="plot-header"><i class="ti ti-chart-dots" style="color:var(--blue)"></i> Scatter Plot</div>
+    <div class="alert alert-info" style="margin:8px 0 12px;font-size:14px;">
+      <strong>Each dot is one row of your data.</strong> This chart helps show whether
+      two things tend to move together — for example, if dots trend upward from left
+      to right, it means as one number goes up, so does the other.
+    </div>
     <img src="{{ plots.scatter }}" alt="Scatter plot" style="width:100%;height:auto">
   </div>
   {% endif %}
@@ -55,16 +87,29 @@
   {% if plots.heatmap %}
   <div class="plot-card" style="grid-column: 1 / -1;">
     <div class="plot-header"><i class="ti ti-layout-grid" style="color:var(--blue)"></i> Correlation Heatmap</div>
+    <div class="alert alert-info" style="margin:8px 0 12px;font-size:14px;">
+      <strong>This grid shows which columns "move together."</strong> Darker or more
+      intense colored squares mean two columns are strongly linked — when one changes,
+      the other tends to change too. Lighter squares mean the two columns don't really
+      affect each other. No need to memorize the numbers — just look for the boldest
+      colors.
+    </div>
     <img src="{{ plots.heatmap }}" alt="Correlation heatmap" style="width:100%;height:auto">
   </div>
   {% endif %}
 
-  {% if plots.countplot %}
+  <!-- {% if plots.countplot %}
   <div class="plot-card" style="grid-column: 1 / -1;">
     <div class="plot-header"><i class="ti ti-chart-bar" style="color:var(--blue)"></i> Target Distribution — {{ target_column }}</div>
+    <div class="alert alert-info" style="margin:8px 0 12px;font-size:14px;">
+      <strong>This shows how many examples of each answer you have</strong> for
+      "{{ target_column }}" — the thing we're trying to predict. If one bar is much
+      taller than the others, it means your data has a lot more examples of that
+      answer than the rest, which is useful to know before training.
+    </div>
     <img src="{{ plots.countplot }}" alt="Count plot" style="width:100%;height:auto">
   </div>
-  {% endif %}
+  {% endif %} -->
 </div>
 
 <div class="btn-row">

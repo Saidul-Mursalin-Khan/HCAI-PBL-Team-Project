@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AutoML Pipeline</title>
+  <title>{% block title %}AutoML Pipeline{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
@@ -20,6 +20,8 @@
       --radius: 10px; --radius-lg: 16px;
     }
     body { background: var(--surface); font-family: var(--sans); color: var(--text); min-height: 100vh; }
+    .skip-link { position: fixed; top: 8px; left: 8px; z-index: 2000; padding: 10px 14px; border-radius: 8px; background: var(--blue-dark); color: white; font-size: 14px; font-weight: 700; text-decoration: none; transform: translateY(-150%); }
+    .skip-link:focus { transform: translateY(0); }
     /* NAVBAR */
 .navbar{
   position: sticky;
@@ -258,8 +260,10 @@
       .param-grid { grid-template-columns: 1fr; }
     }
   </style>
+  {% block extra_css %}{% endblock %}
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <nav class="navbar">
   <div class="nav-left">
     <a href="/" class="brand">
@@ -275,7 +279,7 @@
     </a>
   </div>
 </nav>
-<div class="app">
+<main class="app" id="main-content">
 
   <!-- STEPPER -->
   {% with s=active_step %}
@@ -296,7 +300,7 @@
 
   {% block content %}{% endblock %}
 
-</div>
+</main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 {% block extra_js %}{% endblock %}

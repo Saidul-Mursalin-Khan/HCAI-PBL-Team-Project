@@ -1,357 +1,226 @@
 {% extends "project1/base.html" %}
+{% load static %}
+
+{% block title %}Penguin Explainer{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project2/style.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="step-nav-label">Project 2</div>
-<div class="step-nav-title">Explainability for Palmer Penguins</div>
-<div class="step-nav-desc">Use the stages below to move through data, model regularization, counterfactuals, and feature effects.</div>
-
-<div class="card">
-  <div class="section-head">Project Stages</div>
-  <div class="btn-row" style="justify-content:flex-start;flex-wrap:wrap;margin-top:0;">
-    {% for link in stage_links %}
-      <a class="btn {% if stage == link.number %}btn-primary{% else %}btn-outline{% endif %}" href="{{ link.url }}">
-        {{ link.number }}. {{ link.label }}
-      </a>
-    {% endfor %}
+<header class="p2-hero">
+  <div class="p2-hero-icon" aria-hidden="true">🐧</div>
+  <div>
+    <p class="eyebrow">A guided, four-step tour</p>
+    <h1>Understand how a computer identifies penguins</h1>
+    <p class="hero-copy">There are no wrong choices here. Change one setting, press the blue button, and we will explain what happened in plain language.</p>
   </div>
-</div>
+</header>
+
+<nav class="journey-nav" aria-label="Project steps">
+  {% for link in stage_links %}
+    <a href="{{ link.url }}" class="journey-step {% if stage == link.number %}is-current{% elif stage > link.number %}is-done{% endif %}" {% if stage == link.number %}aria-current="step"{% endif %}>
+      <span class="journey-number" aria-hidden="true">{% if stage > link.number %}✓{% else %}{{ link.number }}{% endif %}</span>
+      <span>
+        <span class="journey-label">{{ link.label }}</span>
+        {% if stage == link.number %}<span class="journey-status">You are here</span>{% endif %}
+      </span>
+    </a>
+  {% endfor %}
+</nav>
 
 {% if stage == 1 %}
-<div class="card">
-  <div class="section-head">Stage 1: Data</div>
-  <div class="metric-grid">
-    <div class="metric-card">
-      <div class="m-label">Rows</div>
-      <div class="m-value">{{ total_count }}</div>
-    </div>
-    <div class="metric-card">
-      <div class="m-label">Train Rows</div>
-      <div class="m-value">{{ train_count }}</div>
-    </div>
-    <div class="metric-card">
-      <div class="m-label">Test Rows</div>
-      <div class="m-value">{{ test_count }}</div>
-    </div>
-    <div class="metric-card">
-      <div class="m-label">Target</div>
-      <div class="m-value" style="font-size:20px">species</div>
-    </div>
+<section class="card p2-card" aria-labelledby="stage-title">
+  <div class="stage-heading">
+    <span class="stage-kicker">Step 1 of 4</span>
+    <h2 id="stage-title">Meet the penguin data</h2>
+    <p>First, see what information the computer will learn from. The data is already cleaned and divided into a learning group and a checking group.</p>
   </div>
 
-  <div class="table-wrap" style="margin-bottom:20px;">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Feature</th>
-          <th>Type</th>
-          <th>Values</th>
-        </tr>
-      </thead>
+  <div class="plain-callout">
+    <i class="ti ti-bulb" aria-hidden="true"></i>
+    <div><strong>What is happening?</strong> The computer studies the learning rows, then we use rows it has not seen before to check how well it learned.</div>
+  </div>
+
+  <div class="friendly-stats" aria-label="Dataset summary">
+    <div class="friendly-stat"><span class="stat-big">{{ total_count }}</span><span>penguins in total</span></div>
+    <div class="friendly-stat"><span class="stat-big">{{ train_count }}</span><span>used for learning</span></div>
+    <div class="friendly-stat"><span class="stat-big">{{ test_count }}</span><span>used for checking</span></div>
+    <div class="friendly-stat"><span class="stat-big">3</span><span>species to identify</span></div>
+  </div>
+
+  <h3>What the computer can look at</h3>
+  <p class="section-help">Measurements are numbers such as weight. Categories are words such as island or sex.</p>
+  <div class="table-wrap p2-table-wrap">
+    <table class="data-table p2-table">
+      <thead><tr><th scope="col">Information</th><th scope="col">Kind</th><th scope="col">Possible values</th></tr></thead>
       <tbody>
         {% for row in dataset_rows %}
-          <tr>
-            <td>{{ row.feature }}</td>
-            <td>{{ row.type }}</td>
-            <td>{{ row.detail }}</td>
-          </tr>
+          <tr><td><strong>{{ row.label }}</strong></td><td>{{ row.type }}</td><td>{{ row.detail }}</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
-  <div class="section-head">Preview</div>
-  <div class="table-wrap">
-    <table class="data-table">
-      <thead>
-        <tr>
-          {% for header in preview_headers %}
-            <th>{{ header }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in preview_rows %}
-          <tr>
-            {% for value in row %}
-              <td>{{ value }}</td>
-            {% endfor %}
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  <details class="learn-more">
+    <summary>Show a small sample of the data</summary>
+    <p>Each row below describes one penguin.</p>
+    <div class="table-wrap p2-table-wrap">
+      <table class="data-table p2-table">
+        <thead><tr>{% for header in preview_headers %}<th scope="col">{{ header }}</th>{% endfor %}</tr></thead>
+        <tbody>
+          {% for row in preview_rows %}<tr>{% for value in row %}<td>{{ value }}</td>{% endfor %}</tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </details>
 
-  <div class="btn-row">
-    <a class="btn btn-primary" href="?stage=2&model_type={{ model_type }}&lambda_value={{ lambda_value }}&example_index={{ example_index }}&target_label={{ target_label }}&feature={{ selected_feature }}">
-      <i class="ti ti-arrow-right"></i> Continue to Models
-    </a>
+  <div class="stage-actions stage-actions-end">
+    <a class="btn btn-primary p2-primary" href="{{ next_stage_url }}">Next: choose a model <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
   </div>
-</div>
+</section>
 {% endif %}
 
 {% if stage == 2 %}
-<form method="post" class="card">
-  {% csrf_token %}
-  <input type="hidden" name="stage" value="2">
-  <input type="hidden" name="example_index" value="{{ example_index }}">
-  <input type="hidden" name="target_label" value="{{ target_label }}">
-  <input type="hidden" name="feature" value="{{ selected_feature }}">
+<section aria-labelledby="stage-title">
+  <form method="post" class="card p2-card">
+    {% csrf_token %}
+    <input type="hidden" name="stage" value="2">
+    <input type="hidden" name="example_index" value="{{ example_index }}">
+    <input type="hidden" name="target_label" value="{{ target_label }}">
+    <input type="hidden" name="feature" value="{{ selected_feature }}">
 
-  <div class="section-head">Stage 2: Model and Regularization</div>
-  <div class="param-grid">
-    <div class="field-group">
-      <label class="field-label" for="model-type">Model class</label>
-      <select name="model_type" id="model-type">
-        {% for value, label in model_choices %}
-          <option value="{{ value }}" {% if model_type == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
+    <div class="stage-heading">
+      <span class="stage-kicker">Step 2 of 4</span>
+      <h2 id="stage-title">Choose how the computer should learn</h2>
+      <p>Pick a model and decide how much you value a simple explanation. Then press the button to compare the available choices.</p>
     </div>
-    <div class="field-group">
-      <label class="field-label" for="lambda-slider">Lambda: <span id="lambdaValue">{{ lambda_value }}</span></label>
-      <input type="range" id="lambda-slider" name="lambda_value" min="0" max="0.25" step="0.005" value="{{ lambda_value }}" oninput="lambdaValue.innerText=this.value">
-    </div>
-  </div>
 
-  <div class="btn-row">
-    <button type="submit" class="btn btn-primary"><i class="ti ti-refresh"></i> Update Model</button>
-  </div>
-</form>
+    <div class="choice-grid">
+      <div class="friendly-field">
+        <label for="model-type">How should it make decisions?</label>
+        <select name="model_type" id="model-type">
+          {% for value, label in model_choices %}<option value="{{ value }}" {% if model_type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <p class="field-help"><strong>Decision tree</strong> follows visible yes/no branches. <strong>Logistic regression</strong> combines clues using numbers.</p>
+      </div>
+      <div class="friendly-field">
+        <label for="lambda-slider">Preference for a simpler model: <output id="lambdaValue" for="lambda-slider">{{ lambda_value }}</output></label>
+        <input type="range" id="lambda-slider" name="lambda_value" min="0" max="0.25" step="0.005" value="{{ lambda_value }}" oninput="lambdaValue.value=this.value">
+        <div class="range-labels"><span>Focus on accuracy</span><span>Prefer simplicity</span></div>
+        <p class="field-help">Move this only if you want. A higher value accepts a little less accuracy in exchange for an easier model.</p>
+      </div>
+    </div>
+    <div class="stage-actions stage-actions-end"><button type="submit" class="btn btn-primary p2-primary"><i class="ti ti-sparkles" aria-hidden="true"></i> Compare and choose for me</button></div>
+  </form>
 
-<div class="card">
-  <div class="section-head">Tasks 1-3: Selected {{ model_label }}</div>
-  <div class="metric-grid">
-    <div class="metric-card">
-      <div class="m-label">Test Accuracy</div>
-      <div class="m-value">{{ selected.accuracy|floatformat:3 }}</div>
+  <div class="card p2-card" aria-live="polite">
+    <div class="result-banner result-success"><i class="ti ti-circle-check" aria-hidden="true"></i><div><strong>Done — the best match is {{ model_label }}</strong><span>The computer compared every available setting using your preference above.</span></div></div>
+    <div class="result-summary-grid">
+      <div class="hero-result"><span class="result-number">{{ accuracy_percent }}%</span><span>of unseen penguins identified correctly</span></div>
+      <div class="result-explanation"><h3>What this means</h3><p>Out of every 100 similar penguins, this model would be expected to name about {{ accuracy_percent }} correctly.</p><p>{{ complexity_explanation }}</p></div>
     </div>
-    <div class="metric-card">
-      <div class="m-label">Complexity</div>
-      <div class="m-value">{{ selected.complexity|floatformat:2 }}</div>
-    </div>
-    <div class="metric-card">
-      <div class="m-label">Objective</div>
-      <div class="m-value">{{ selected.score|floatformat:3 }}</div>
-    </div>
-    <div class="metric-card">
-      <div class="m-label">Setting</div>
-      <div class="m-value" style="font-size:18px">{{ selected.label }}</div>
-    </div>
-  </div>
 
-  <div class="table-wrap" style="margin-bottom:20px;">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Candidate</th>
-          <th>Accuracy</th>
-          <th>Complexity</th>
-          <th>Accuracy - lambda * complexity</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in candidate_rows %}
-          <tr>
-            <td>{{ row.label }}</td>
-            <td>{{ row.accuracy|floatformat:3 }}</td>
-            <td>{{ row.complexity|floatformat:3 }}</td>
-            <td>{{ row.score|floatformat:3 }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    {% if summary.type == "tree" %}
+      <details class="learn-more">
+        <summary>Show how the decision tree thinks</summary>
+        <p>Start at the top and follow the branch that matches the penguin. You can scroll sideways or zoom your browser if needed.</p>
+        <div class="result-plot tree-plot"><img src="{{ summary.image_uri }}" alt="Decision tree showing the rules used to identify penguin species"></div>
+        <details class="nested-details"><summary>Show the technical text version</summary><pre>{{ summary.tree_text }}</pre></details>
+      </details>
+    {% else %}
+      <details class="learn-more">
+        <summary>Show the clues with the strongest influence</summary>
+        <p>Larger positive or negative numbers mean that clue has a stronger influence on the model.</p>
+        <div class="table-wrap p2-table-wrap"><table class="data-table p2-table"><thead><tr><th scope="col">Species</th><th scope="col">Clue</th><th scope="col">Influence</th></tr></thead><tbody>{% for class_row in summary.rows %}{% for coef in class_row.coefficients %}<tr><td>{{ class_row.class_name }}</td><td>{{ coef.feature }}</td><td>{{ coef.value|floatformat:3 }}</td></tr>{% endfor %}{% endfor %}</tbody></table></div>
+      </details>
+    {% endif %}
 
-  {% if summary.type == "tree" %}
-    <div class="section-head">Decision Tree</div>
-    <div class="result-plot" style="max-width:100%;overflow:auto;background:#f7f9fc;">
-      <img src="{{ summary.image_uri }}" alt="Decision tree visualization" style="min-width:100%;display:block;">
-    </div>
-    <details style="margin-top:12px;">
-      <summary style="cursor:pointer;font-size:12px;font-weight:600;color:var(--text-muted);">Text view</summary>
-      <pre style="background:#f7f9fc;border:1px solid var(--border);border-radius:8px;padding:16px;overflow:auto;font-family:var(--mono);font-size:12px;line-height:1.55;">{{ summary.tree_text }}</pre>
+    <details class="learn-more technical-details">
+      <summary>Show the technical comparison</summary>
+      <p>The combined score rewards accuracy and subtracts the simplicity penalty you selected.</p>
+      <div class="table-wrap p2-table-wrap"><table class="data-table p2-table"><thead><tr><th scope="col">Setting</th><th scope="col">Accuracy</th><th scope="col">Complexity</th><th scope="col">Combined score</th></tr></thead><tbody>{% for row in candidate_rows %}<tr><td>{{ row.label }}</td><td>{{ row.accuracy|floatformat:3 }}</td><td>{{ row.complexity|floatformat:3 }}</td><td>{{ row.score|floatformat:3 }}</td></tr>{% endfor %}</tbody></table></div>
     </details>
-  {% else %}
-    <div class="section-head">Largest Logistic Coefficients</div>
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Species</th>
-            <th>Feature</th>
-            <th>Coefficient</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for class_row in summary.rows %}
-            {% for coef in class_row.coefficients %}
-              <tr>
-                <td>{{ class_row.class_name }}</td>
-                <td>{{ coef.feature }}</td>
-                <td>{{ coef.value|floatformat:3 }}</td>
-              </tr>
-            {% endfor %}
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% endif %}
-</div>
+    <div class="stage-actions"><a class="btn btn-outline p2-secondary" href="{{ previous_stage_url }}"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</a><a class="btn btn-primary p2-primary" href="{{ next_stage_url }}">Next: try a what-if <i class="ti ti-arrow-right" aria-hidden="true"></i></a></div>
+  </div>
+</section>
 {% endif %}
 
 {% if stage == 3 %}
-<form method="post" class="card">
-  {% csrf_token %}
-  <input type="hidden" name="stage" value="3">
-  <input type="hidden" name="feature" value="{{ selected_feature }}">
+<section aria-labelledby="stage-title">
+  <form method="post" class="card p2-card">
+    {% csrf_token %}
+    <input type="hidden" name="stage" value="3">
+    <input type="hidden" name="feature" value="{{ selected_feature }}">
+    <div class="stage-heading">
+      <span class="stage-kicker">Step 3 of 4</span>
+      <h2 id="stage-title">Ask a “what would need to change?” question</h2>
+      <p>Choose one penguin and a species you want the model to predict. We will find the smallest realistic changes that could lead to that answer.</p>
+    </div>
+    <div class="plain-callout"><i class="ti ti-arrows-exchange" aria-hidden="true"></i><div><strong>Example:</strong> “The model says Adelie. What measurements would make it say Gentoo instead?”</div></div>
+    <div class="choice-grid choice-grid-four">
+      <div class="friendly-field"><label for="cf-model-type">Model to ask</label><select name="model_type" id="cf-model-type">{% for value, label in model_choices %}<option value="{{ value }}" {% if model_type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <div class="friendly-field"><label for="cf-lambda-slider">Simplicity preference: <output id="cfLambdaValue" for="cf-lambda-slider">{{ lambda_value }}</output></label><input type="range" id="cf-lambda-slider" name="lambda_value" min="0" max="0.25" step="0.005" value="{{ lambda_value }}" oninput="cfLambdaValue.value=this.value"><div class="range-labels"><span>Accuracy</span><span>Simplicity</span></div></div>
+      <div class="friendly-field"><label for="example-index">Penguin to examine</label><select name="example_index" id="example-index">{% for idx in example_options %}<option value="{{ idx }}" {% if idx == example_index %}selected{% endif %}>Penguin {{ idx }}</option>{% endfor %}</select></div>
+      <div class="friendly-field"><label for="target-label">Answer you want to explore</label><select name="target_label" id="target-label">{% for label in classes %}<option value="{{ label }}" {% if label == target_label %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="stage-actions stage-actions-end"><button type="submit" class="btn btn-primary p2-primary"><i class="ti ti-wand" aria-hidden="true"></i> Find the smallest changes</button></div>
+  </form>
 
-  <div class="section-head">Stage 3: Counterfactual Explanations</div>
-  <div class="param-grid">
-    <div class="field-group">
-      <label class="field-label" for="cf-model-type">Model class</label>
-      <select name="model_type" id="cf-model-type">
-        {% for value, label in model_choices %}
-          <option value="{{ value }}" {% if model_type == value %}selected{% endif %}>{{ label }}</option>
+  <div class="card p2-card" aria-live="polite">
+    <div class="prediction-flow" aria-label="Prediction question">
+      <div><span>Current answer</span><strong>{{ current_prediction }}</strong></div><i class="ti ti-arrow-right" aria-hidden="true"></i><div><span>Answer being explored</span><strong>{{ target_label }}</strong></div>
+    </div>
+    {% if current_prediction == target_label %}
+      <div class="result-banner result-info"><i class="ti ti-info-circle" aria-hidden="true"></i><div><strong>The model already gives your chosen answer.</strong><span>Choose a different target species above if you want to see a more useful change.</span></div></div>
+    {% elif counterfactuals %}
+      <div class="result-banner result-success"><i class="ti ti-circle-check" aria-hidden="true"></i><div><strong>We found {{ counterfactuals|length }} possible answers.</strong><span>Yellow values are the ones that changed. Option 1 requires the smallest overall change.</span></div></div>
+    {% else %}
+      <div class="result-banner result-info"><i class="ti ti-info-circle" aria-hidden="true"></i><div><strong>No small realistic change was found.</strong><span>Try another penguin, target species, or model. Nothing is broken.</span></div></div>
+    {% endif %}
+
+    <details class="learn-more"><summary>Show the original penguin’s information</summary><dl class="original-values">{% for item in selected_example %}<div><dt>{{ item.label }}</dt><dd>{{ item.value }}</dd></div>{% endfor %}</dl></details>
+
+    {% if counterfactuals %}
+      <div class="what-if-list">
+        {% for cf in counterfactuals %}
+          <article class="what-if-card">
+            <div class="what-if-heading"><h3>Option {{ forloop.counter }}</h3>{% if forloop.first %}<span class="recommended-badge">Smallest change</span>{% endif %}</div>
+            <dl class="change-grid">{% for value in cf.values %}<div class="{% if value.changed %}is-changed{% else %}is-unchanged{% endif %}"><dt>{{ value.label }}</dt><dd>{{ value.value }}{% if value.changed %}<span class="changed-label">changed</span>{% endif %}</dd></div>{% endfor %}</dl>
+            <details class="tiny-details"><summary>Show technical distance score</summary><p>{{ cf.distance|floatformat:3 }} — smaller means closer to the original penguin.</p></details>
+          </article>
         {% endfor %}
-      </select>
-    </div>
-    <div class="field-group">
-      <label class="field-label" for="cf-lambda-slider">Lambda: <span id="cfLambdaValue">{{ lambda_value }}</span></label>
-      <input type="range" id="cf-lambda-slider" name="lambda_value" min="0" max="0.25" step="0.005" value="{{ lambda_value }}" oninput="cfLambdaValue.innerText=this.value">
-    </div>
-    <div class="field-group">
-      <label class="field-label" for="example-index">Example x</label>
-      <select name="example_index" id="example-index">
-        {% for idx in example_options %}
-          <option value="{{ idx }}" {% if idx == example_index %}selected{% endif %}>Row {{ idx }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="field-group">
-      <label class="field-label" for="target-label">Target species</label>
-      <select name="target_label" id="target-label">
-        {% for label in classes %}
-          <option value="{{ label }}" {% if label == target_label %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-    </div>
+      </div>
+    {% endif %}
+    <div class="stage-actions"><a class="btn btn-outline p2-secondary" href="{{ previous_stage_url }}"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</a><a class="btn btn-primary p2-primary" href="{{ next_stage_url }}">Next: see what matters <i class="ti ti-arrow-right" aria-hidden="true"></i></a></div>
   </div>
-
-  <div class="btn-row">
-    <button type="submit" class="btn btn-primary"><i class="ti ti-refresh"></i> Generate Counterfactuals</button>
-  </div>
-</form>
-
-<div class="card">
-  <div class="section-head">Counterfactual Results</div>
-  <div class="metric-grid">
-    <div class="metric-card">
-      <div class="m-label">Model</div>
-      <div class="m-value" style="font-size:20px">{{ model_label }}</div>
-    </div>
-    <div class="metric-card">
-      <div class="m-label">Selected Row</div>
-      <div class="m-value">{{ example_index }}</div>
-    </div>
-    <div class="metric-card">
-      <div class="m-label">Target Label</div>
-      <div class="m-value" style="font-size:20px">{{ target_label }}</div>
-    </div>
-  </div>
-
-  <div class="table-wrap" style="margin-bottom:20px;">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Feature</th>
-          <th>Selected x</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in selected_example %}
-          <tr>
-            <td>{{ item.feature }}</td>
-            <td>{{ item.value }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  {% if counterfactuals %}
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>MAD-weighted L1</th>
-            {% for feature in selected_example %}
-              <th>{{ feature.feature }}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for cf in counterfactuals %}
-            <tr>
-              <td>{{ forloop.counter }}</td>
-              <td>{{ cf.distance|floatformat:3 }}</td>
-              {% for value in cf.values %}
-                <td>{{ value.value }}</td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% else %}
-    <div class="alert alert-info"><i class="ti ti-info-circle"></i> No counterfactuals were found for this target with the current settings.</div>
-  {% endif %}
-</div>
+</section>
 {% endif %}
 
 {% if stage == 4 %}
-<form method="post" class="card">
-  {% csrf_token %}
-  <input type="hidden" name="stage" value="4">
-  <input type="hidden" name="example_index" value="{{ example_index }}">
-  <input type="hidden" name="target_label" value="{{ target_label }}">
-
-  <div class="section-head">Stage 4: Feature Effect Plots</div>
-  <div class="param-grid">
-    <div class="field-group">
-      <label class="field-label" for="fx-model-type">Model class</label>
-      <select name="model_type" id="fx-model-type">
-        {% for value, label in model_choices %}
-          <option value="{{ value }}" {% if model_type == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
+<section aria-labelledby="stage-title">
+  <form method="post" class="card p2-card">
+    {% csrf_token %}
+    <input type="hidden" name="stage" value="4">
+    <input type="hidden" name="example_index" value="{{ example_index }}">
+    <input type="hidden" name="target_label" value="{{ target_label }}">
+    <div class="stage-heading"><span class="stage-kicker">Step 4 of 4</span><h2 id="stage-title">See which measurements matter</h2><p>Choose one measurement. The charts show how the model’s answer tends to change when that measurement becomes smaller or larger.</p></div>
+    <div class="choice-grid choice-grid-three">
+      <div class="friendly-field"><label for="fx-model-type">Model to explain</label><select name="model_type" id="fx-model-type">{% for value, label in model_choices %}<option value="{{ value }}" {% if model_type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <div class="friendly-field"><label for="fx-lambda-slider">Simplicity preference: <output id="fxLambdaValue" for="fx-lambda-slider">{{ lambda_value }}</output></label><input type="range" id="fx-lambda-slider" name="lambda_value" min="0" max="0.25" step="0.005" value="{{ lambda_value }}" oninput="fxLambdaValue.value=this.value"><div class="range-labels"><span>Accuracy</span><span>Simplicity</span></div></div>
+      <div class="friendly-field"><label for="feature">Measurement to explore</label><select name="feature" id="feature">{% for item in feature_choices %}<option value="{{ item.value }}" {% if item.value == selected_feature %}selected{% endif %}>{{ item.label }}</option>{% endfor %}</select></div>
     </div>
-    <div class="field-group">
-      <label class="field-label" for="fx-lambda-slider">Lambda: <span id="fxLambdaValue">{{ lambda_value }}</span></label>
-      <input type="range" id="fx-lambda-slider" name="lambda_value" min="0" max="0.25" step="0.005" value="{{ lambda_value }}" oninput="fxLambdaValue.innerText=this.value">
-    </div>
-    <div class="field-group">
-      <label class="field-label" for="feature">Feature</label>
-      <select name="feature" id="feature">
-        {% for feature in features %}
-          <option value="{{ feature }}" {% if feature == selected_feature %}selected{% endif %}>{{ feature }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
+    <div class="stage-actions stage-actions-end"><button type="submit" class="btn btn-primary p2-primary"><i class="ti ti-chart-line" aria-hidden="true"></i> Update the charts</button></div>
+  </form>
 
-  <div class="btn-row">
-    <button type="submit" class="btn btn-primary"><i class="ti ti-refresh"></i> Update Plots</button>
+  <div class="card p2-card" aria-live="polite">
+    <div class="result-banner result-info"><i class="ti ti-eye" aria-hidden="true"></i><div><strong>Now showing: {{ selected_feature_label }}</strong><span>{{ effect_note }}</span></div></div>
+    <div class="chart-reading-guide"><h3>How to read these charts</h3><ol><li>Read from left (smaller measurement) to right (larger measurement).</li><li>Each colored line represents one penguin species.</li><li>A rising line means the model becomes more likely to choose that species.</li></ol></div>
+    <div class="plot-grid p2-plot-grid">{% include "project2/plot.html" with plot=pdp x_label=selected_feature_label %}{% include "project2/plot.html" with plot=ale x_label=selected_feature_label %}</div>
+    <details class="learn-more technical-details"><summary>What are these chart methods called?</summary><p>The first is a <strong>Partial Dependence Plot (PDP)</strong>. The second is an <strong>Accumulated Local Effects (ALE)</strong> plot. ALE can be safer when measurements influence each other.</p></details>
+    <div class="completion-banner"><span aria-hidden="true">🎉</span><div><strong>You completed the tour.</strong><p>You inspected the data, selected a model, explored a what-if question, and saw which measurements affect its answers.</p></div></div>
+    <div class="stage-actions"><a class="btn btn-outline p2-secondary" href="{{ previous_stage_url }}"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</a><a class="btn btn-primary p2-primary" href="{% url 'project2:index' %}"><i class="ti ti-refresh" aria-hidden="true"></i> Start again</a></div>
   </div>
-</form>
-
-<div class="card">
-  <div class="section-head">PDP and ALE for {{ selected_feature }}</div>
-  <div class="alert alert-info"><i class="ti ti-chart-line"></i> {{ effect_note }}</div>
-  <div class="plot-grid">
-    {% include "project2/plot.html" with plot=pdp %}
-    {% include "project2/plot.html" with plot=ale %}
-  </div>
-</div>
+</section>
 {% endif %}
 {% endblock %}

@@ -1,27 +1,27 @@
-<div class="plot-card">
-  <div class="plot-header"><i class="ti ti-chart-line"></i> {{ plot.title }}</div>
-  <svg viewBox="0 0 360 220" role="img" aria-label="{{ plot.title }} plot" style="width:100%;height:auto;display:block;background:white;">
-    <line x1="36" y1="40" x2="36" y2="170" stroke="#d7deeb" stroke-width="1" />
-    <line x1="36" y1="170" x2="336" y2="170" stroke="#d7deeb" stroke-width="1" />
-    <text x="36" y="192" font-size="10" fill="#5a6478">{{ plot.x_min }}</text>
-    <text x="304" y="192" font-size="10" fill="#5a6478">{{ plot.x_max }}</text>
-    <text x="8" y="44" font-size="10" fill="#5a6478">{{ plot.y_max }}</text>
-    <text x="8" y="172" font-size="10" fill="#5a6478">{{ plot.y_min }}</text>
+<figure class="plot-card p2-plot-card">
+  <figcaption class="plot-header">
+    <span><i class="ti ti-chart-line" aria-hidden="true"></i> {{ plot.title }}</span>
+    <small>{{ plot.description }}</small>
+  </figcaption>
+  <div class="chart-y-label">Effect on the model’s answer</div>
+  <svg viewBox="0 0 400 250" role="img" aria-labelledby="plot-title-{{ plot.title|slugify }} plot-desc-{{ plot.title|slugify }}" class="p2-chart">
+    <title id="plot-title-{{ plot.title|slugify }}">{{ plot.title }} for {{ x_label }}</title>
+    <desc id="plot-desc-{{ plot.title|slugify }}">{{ plot.description }} Lines show Adelie, Gentoo, and Chinstrap penguins.</desc>
+    <line x1="52" y1="28" x2="52" y2="190" stroke="#8695a8" stroke-width="1.5" />
+    <line x1="52" y1="190" x2="372" y2="190" stroke="#8695a8" stroke-width="1.5" />
+    <line x1="52" y1="109" x2="372" y2="109" stroke="#d7deeb" stroke-width="1" stroke-dasharray="5 5" />
+    <text x="52" y="211" font-size="12" fill="#4e5d73">{{ plot.x_min }}</text>
+    <text x="337" y="211" font-size="12" fill="#4e5d73">{{ plot.x_max }}</text>
+    <text x="10" y="34" font-size="12" fill="#4e5d73">{{ plot.y_max }}</text>
+    <text x="10" y="193" font-size="12" fill="#4e5d73">{{ plot.y_min }}</text>
     {% for line in plot.series %}
-      <polyline points="{{ line.points }}" fill="none" stroke="{{ line.color }}" stroke-width="2.5" />
+      <polyline points="{{ line.points }}" fill="none" stroke="{{ line.color }}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
     {% endfor %}
-    <g transform="translate(36,204)">
-      {% for line in plot.series %}
-        <circle cx="{{ forloop.counter0|add:0 }}" cy="0" r="0"></circle>
-      {% endfor %}
-    </g>
+    <text x="212" y="239" text-anchor="middle" font-size="13" font-weight="700" fill="#172033">{{ x_label }}: smaller → larger</text>
   </svg>
-  <div style="display:flex;gap:12px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--border);">
+  <div class="plot-legend" aria-label="Species colors">
     {% for line in plot.series %}
-      <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);">
-        <span style="width:10px;height:10px;border-radius:50%;background:{{ line.color }};display:inline-block;"></span>
-        {{ line.class_name }}
-      </span>
+      <span><span class="legend-dot" style="background:{{ line.color }};"></span>{{ line.class_name }}</span>
     {% endfor %}
   </div>
-</div>
+</figure>

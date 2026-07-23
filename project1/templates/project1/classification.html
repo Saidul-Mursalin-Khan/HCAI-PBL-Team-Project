@@ -12,32 +12,59 @@
   <span>Training complete — <strong>{{ selected_model|title }}</strong> fitted successfully.</span>
 </div>
 
+<div class="alert alert-info" style="margin-bottom:20px;">
+  <i class="ti ti-bulb"></i>
+  <strong>What am I looking at?</strong> We trained your model, then tested it on data
+  it had never seen before (the "held-out test set") to check how well it really performs.
+  The numbers below tell you how trustworthy its predictions are.
+</div>
+
 <!-- METRICS -->
 <div class="section-head">Performance metrics</div>
 <div class="metric-grid">
   <div class="metric-card">
-    <div class="m-label">Accuracy</div>
+    <div class="m-label">
+      Accuracy
+      <i class="ti ti-help-circle metric-tooltip-trigger" tabindex="0" aria-describedby="tip-accuracy"></i>
+      <div class="metric-tooltip" id="tip-accuracy" role="tooltip">Out of every 100 predictions, how many were correct.</div>
+    </div>
     <div class="m-value">{{ results.accuracy_pct }}<span style="font-size:14px">%</span></div>
     <div class="m-bar"><div class="m-bar-fill" style="width:{{ results.accuracy_pct }}%"></div></div>
   </div>
   <div class="metric-card">
-    <div class="m-label">Precision</div>
+    <div class="m-label">
+      Precision
+      <i class="ti ti-help-circle metric-tooltip-trigger" tabindex="0" aria-describedby="tip-precision"></i>
+      <div class="metric-tooltip" id="tip-precision" role="tooltip">When the model said "yes," how often was it actually right.</div>
+    </div>
     <div class="m-value">{{ results.precision_pct }}<span style="font-size:14px">%</span></div>
     <div class="m-bar"><div class="m-bar-fill" style="width:{{ results.precision_pct }}%"></div></div>
   </div>
   <div class="metric-card">
-    <div class="m-label">Recall</div>
+    <div class="m-label">
+      Recall
+      <i class="ti ti-help-circle metric-tooltip-trigger" tabindex="0" aria-describedby="tip-recall"></i>
+      <div class="metric-tooltip" id="tip-recall" role="tooltip">Out of all the real "yes" cases, how many the model actually caught.</div>
+    </div>
     <div class="m-value">{{ results.recall_pct }}<span style="font-size:14px">%</span></div>
     <div class="m-bar"><div class="m-bar-fill" style="width:{{ results.recall_pct }}%"></div></div>
   </div>
   <div class="metric-card">
-    <div class="m-label">F1 Score</div>
+    <div class="m-label">
+      F1 Score
+      <i class="ti ti-help-circle metric-tooltip-trigger" tabindex="0" aria-describedby="tip-f1"></i>
+      <div class="metric-tooltip" id="tip-f1" role="tooltip">A balance between Precision and Recall, useful when you care about both.</div>
+    </div>
     <div class="m-value">{{ results.f1_pct }}<span style="font-size:14px">%</span></div>
     <div class="m-bar"><div class="m-bar-fill" style="width:{{ results.f1_pct }}%"></div></div>
   </div>
   {% if results.roc_auc %}
   <div class="metric-card">
-    <div class="m-label">ROC-AUC</div>
+    <div class="m-label">
+      ROC-AUC
+      <i class="ti ti-help-circle metric-tooltip-trigger" tabindex="0" aria-describedby="tip-auc"></i>
+      <div class="metric-tooltip" id="tip-auc" role="tooltip">How well the model tells the two classes apart overall. 100% is perfect, 50% is random guessing.</div>
+    </div>
     <div class="m-value">{{ results.roc_auc_pct }}<span style="font-size:14px">%</span></div>
     <div class="m-bar"><div class="m-bar-fill" style="width:{{ results.roc_auc_pct }}%"></div></div>
   </div>
@@ -47,6 +74,12 @@
 <!-- CONFUSION MATRIX IMAGE -->
 {% if results.confusion_matrix_img %}
 <div class="section-head">Confusion matrix</div>
+<div class="alert alert-info" style="margin-bottom:12px;font-size:14px;">
+  <strong>This table shows where the model got confused.</strong> The diagonal (top-left
+  to bottom-right) shows correct predictions — the bigger those numbers are compared to
+  the rest, the better. Numbers off the diagonal show mistakes, like predicting "yes"
+  when the real answer was "no."
+</div>
 <div class="result-plot roc-container">
   <img src="{{ results.confusion_matrix_img }}" alt="Confusion Matrix">
 </div>
@@ -55,6 +88,11 @@
 <!-- ROC CURVE IMAGE -->
 {% if results.roc_img %}
 <div class="section-head">ROC curve</div>
+<div class="alert alert-info" style="margin-bottom:12px;font-size:14px;">
+  <strong>This line shows the trade-off between catching more "yes" cases and making
+  more false alarms.</strong> The closer the curve hugs the top-left corner, the better
+  the model. A straight diagonal line would mean the model is no better than a coin flip.
+</div>
 <div class="result-plot roc-container">
   {% if results.roc_auc %}
   <div class="auc-badge">AUC = {{ results.roc_auc }}</div>
@@ -82,48 +120,67 @@
 <div class="alert alert-danger"><i class="ti ti-alert-circle"></i> {{ error }}</div>
 {% endif %}
 
+<div class="alert alert-info hint-banner">
+  <i class="ti ti-bulb"></i>
+  <div>
+    <strong>Not sure which to pick?</strong>
+    Start with <strong>Logistic Regression</strong> or <strong>Random Forest</strong> —
+    they're reliable, fast, and work well on most datasets. You can always come back
+    and try another one afterward.
+  </div>
+</div>
+
 <form method="post" action="{% url 'project1:classification' %}" id="train-form">
   {% csrf_token %}
   <input type="hidden" name="model" id="model-hidden" value="">
 
   <div class="card">
     <div class="section-head">Algorithm</div>
-    <div class="model-grid">
-      <div class="model-card" id="mc-logistic_regression" onclick="selectModel('logistic_regression')">
-        <i class="ti ti-line-dashed"></i>
+    <div class="model-grid" role="radiogroup" aria-label="Choose a classification algorithm">
+      <div class="model-card" id="mc-logistic_regression" data-model="logistic_regression"
+           role="radio" tabindex="0" aria-checked="false">
+        <span class="mc-badge">Beginner friendly</span>
+        <div class="mc-icon"><i class="ti ti-line-dashed"></i></div>
         <div class="mc-name">Logistic Regression</div>
-        <div class="mc-desc">Linear boundary</div>
+        <div class="mc-desc">Draws a simple straight-line boundary between classes. Fast and easy to trust.</div>
       </div>
-      <div class="model-card" id="mc-decision_tree" onclick="selectModel('decision_tree')">
-        <i class="ti ti-binary-tree"></i>
+      <div class="model-card" id="mc-decision_tree" data-model="decision_tree"
+           role="radio" tabindex="0" aria-checked="false">
+        <div class="mc-icon"><i class="ti ti-binary-tree"></i></div>
         <div class="mc-name">Decision Tree</div>
-        <div class="mc-desc">Rule-based splits</div>
+        <div class="mc-desc">Makes predictions with a series of yes/no questions, like a flowchart.</div>
       </div>
-      <div class="model-card" id="mc-random_forest" onclick="selectModel('random_forest')">
-        <i class="ti ti-trees"></i>
+      <div class="model-card" id="mc-random_forest" data-model="random_forest"
+           role="radio" tabindex="0" aria-checked="false">
+        <span class="mc-badge">Beginner friendly</span>
+        <div class="mc-icon"><i class="ti ti-trees"></i></div>
         <div class="mc-name">Random Forest</div>
-        <div class="mc-desc">Ensemble of trees</div>
+        <div class="mc-desc">Combines many decision trees and averages their votes for stronger accuracy.</div>
       </div>
-      <div class="model-card" id="mc-knn" onclick="selectModel('knn')">
-        <i class="ti ti-circles"></i>
+      <div class="model-card" id="mc-knn" data-model="knn"
+           role="radio" tabindex="0" aria-checked="false">
+        <div class="mc-icon"><i class="ti ti-circles"></i></div>
         <div class="mc-name">K-Nearest Neighbors</div>
-        <div class="mc-desc">Distance-based</div>
+        <div class="mc-desc">Looks at the most similar past examples to make a prediction.</div>
       </div>
-      <div class="model-card" id="mc-naive_bayes" onclick="selectModel('naive_bayes')">
-        <i class="ti ti-math-function"></i>
+      <div class="model-card" id="mc-naive_bayes" data-model="naive_bayes"
+           role="radio" tabindex="0" aria-checked="false">
+        <div class="mc-icon"><i class="ti ti-math-function"></i></div>
         <div class="mc-name">Naive Bayes</div>
-        <div class="mc-desc">Probabilistic</div>
+        <div class="mc-desc">Uses probability rules. Very fast, works well with text-like data.</div>
       </div>
-      <div class="model-card" id="mc-svm" onclick="selectModel('svm')">
-        <i class="ti ti-vector-bezier-2"></i>
+      <div class="model-card" id="mc-svm" data-model="svm"
+           role="radio" tabindex="0" aria-checked="false">
+        <div class="mc-icon"><i class="ti ti-vector-bezier-2"></i></div>
         <div class="mc-name">SVM</div>
-        <div class="mc-desc">Max-margin classifier</div>
+        <div class="mc-desc">Finds the widest possible gap between classes. Strong on smaller datasets.</div>
       </div>
     </div>
 
     <!-- HYPERPARAMS (shown after model selection) -->
     <div id="hyperparam-box" class="param-box">
       <h4><i class="ti ti-adjustments"></i> Hyperparameters</h4>
+      <p class="param-box-desc">These fine-tune how the model learns. The defaults work well for most cases — only change them if you know what you're doing.</p>
       <div class="param-grid" id="param-grid"></div>
     </div>
   </div>
@@ -132,12 +189,118 @@
     <a href="{% url 'project1:visualize' %}" class="btn btn-outline">
       <i class="ti ti-arrow-left"></i> Back
     </a>
-    <button type="submit" class="btn btn-primary" id="btn-train" disabled>
-      Train Model <i class="ti ti-player-play"></i>
+    <button type="submit" class="btn btn-primary" id="btn-train" disabled
+            title="Pick an algorithm above first">
+      <span id="btn-train-label">Train Model</span> <i class="ti ti-player-play" id="btn-train-icon"></i>
     </button>
   </div>
 </form>
 {% endif %}
+
+<style>
+/* --- Hint banner --- */
+.hint-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  line-height: 1.55;
+}
+.hint-banner i { margin-top: 2px; flex-shrink: 0; }
+
+/* --- Model grid: force a clean 3x2 layout instead of 4-then-2 --- */
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 12px;
+}
+@media (max-width: 900px) {
+  .model-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .model-grid { grid-template-columns: 1fr; }
+}
+
+.model-card {
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  padding: 20px 16px 18px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.model-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--blue, #3b82f6);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+.model-card:focus-visible {
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.35);
+}
+.model-card.selected {
+  border-color: var(--blue, #3b82f6);
+  background: rgba(59,130,246,0.05);
+  box-shadow: 0 0 0 1px var(--blue, #3b82f6);
+}
+
+.mc-icon {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: rgba(59,130,246,0.08);
+  font-size: 20px;
+  color: var(--blue, #3b82f6);
+  margin-bottom: 6px;
+}
+.mc-name { font-weight: 600; font-size: 14.5px; }
+.mc-desc { font-size: 12.5px; opacity: 0.7; line-height: 1.4; }
+
+/* Badge sits above the card content, doesn't overlap the icon */
+.mc-badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  background: var(--blue, #3b82f6);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 999px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+/* --- Metric tooltips --- */
+.metric-tooltip-trigger { cursor: help; margin-left: 4px; font-size: 13px; opacity: 0.6; }
+.metric-tooltip-trigger:hover, .metric-tooltip-trigger:focus { opacity: 1; }
+.metric-tooltip {
+  display: none; position: absolute; z-index: 10;
+  background: #1f2937; color: #fff; font-weight: 400;
+  font-size: 12px; padding: 8px 10px; border-radius: 6px;
+  max-width: 220px; margin-top: 6px; line-height: 1.4;
+}
+.metric-tooltip-trigger:hover + .metric-tooltip,
+.metric-tooltip-trigger:focus + .metric-tooltip { display: block; }
+.m-label { position: relative; display: flex; align-items: center; }
+
+/* --- Hyperparam box --- */
+.param-box-desc { font-size: 13px; opacity: 0.75; margin: 4px 0 12px; }
+.field-help { font-size: 12px; opacity: 0.65; margin-top: 4px; }
+
+/* --- Train button --- */
+.btn-primary:disabled { cursor: not-allowed; opacity: 0.5; }
+.btn-primary.is-loading { pointer-events: none; opacity: 0.85; }
+</style>
 
 {% endblock %}
 
@@ -146,30 +309,45 @@
 <script>
 const HYPERPARAMS = {
   logistic_regression: [
-    { id: 'C', label: 'Regularization (C)', type: 'number', val: 1.0, min: 0.01, step: 0.1 }
+    { id: 'C', label: 'Regularization (C)', type: 'number', val: 1.0, min: 0.01, step: 0.1,
+      help: 'Lower values keep the model simpler; higher values let it fit the data more closely.' }
   ],
   decision_tree: [
-    { id: 'max_depth', label: 'Max Depth', type: 'number', val: 5, min: 1, step: 1 }
+    { id: 'max_depth', label: 'Max Depth', type: 'number', val: 5, min: 1, step: 1,
+      help: 'How many questions deep the tree can go. Deeper trees can overfit.' }
   ],
   random_forest: [
-    { id: 'n_estimators', label: 'N Estimators', type: 'number', val: 100, min: 10, step: 10 },
-    { id: 'max_depth', label: 'Max Depth', type: 'number', val: 5, min: 1, step: 1 }
+    { id: 'n_estimators', label: 'N Estimators', type: 'number', val: 100, min: 10, step: 10,
+      help: 'Number of trees in the forest. More trees are usually more stable but slower.' },
+    { id: 'max_depth', label: 'Max Depth', type: 'number', val: 5, min: 1, step: 1,
+      help: 'How deep each tree can grow.' }
   ],
   knn: [
-    { id: 'n_neighbors', label: 'K Neighbors', type: 'number', val: 5, min: 1, step: 1 }
+    { id: 'n_neighbors', label: 'K Neighbors', type: 'number', val: 5, min: 1, step: 1,
+      help: 'How many nearby examples to check before making a prediction.' }
   ],
   naive_bayes: [],
   svm: [
-    { id: 'C', label: 'C', type: 'number', val: 1.0, min: 0.01, step: 0.1 },
-    { id: 'kernel', label: 'Kernel', type: 'select', options: ['rbf', 'linear', 'poly', 'sigmoid'], val: 'rbf' }
+    { id: 'C', label: 'C', type: 'number', val: 1.0, min: 0.01, step: 0.1,
+      help: 'Controls how strictly the model tries to classify every point correctly.' },
+    { id: 'kernel', label: 'Kernel', type: 'select', options: ['rbf', 'linear', 'poly', 'sigmoid'], val: 'rbf',
+      help: 'The shape of boundary the model is allowed to draw between classes.' }
   ]
 };
 
 function selectModel(id) {
-  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('mc-' + id).classList.add('selected');
+  document.querySelectorAll('.model-card').forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-checked', 'false');
+  });
+  const card = document.getElementById('mc-' + id);
+  card.classList.add('selected');
+  card.setAttribute('aria-checked', 'true');
+
   document.getElementById('model-hidden').value = id;
-  document.getElementById('btn-train').disabled = false;
+  const trainBtn = document.getElementById('btn-train');
+  trainBtn.disabled = false;
+  trainBtn.title = 'Train ' + card.querySelector('.mc-name').textContent;
 
   const params = HYPERPARAMS[id] || [];
   const grid = document.getElementById('param-grid');
@@ -177,15 +355,13 @@ function selectModel(id) {
 
   if (params.length > 0) {
     grid.innerHTML = params.map(p => {
-      if (p.type === 'select') {
-        return `<div>
-          <label class="field-label">${p.label}</label>
-          <select name="${p.id}">${p.options.map(o => `<option${o===p.val?' selected':''}>${o}</option>`).join('')}</select>
-        </div>`;
-      }
+      const field = p.type === 'select'
+        ? `<select name="${p.id}">${p.options.map(o => `<option${o===p.val?' selected':''}>${o}</option>`).join('')}</select>`
+        : `<input type="number" name="${p.id}" value="${p.val}" min="${p.min}" step="${p.step}">`;
       return `<div>
         <label class="field-label">${p.label}</label>
-        <input type="number" name="${p.id}" value="${p.val}" min="${p.min}" step="${p.step}">
+        ${field}
+        ${p.help ? `<div class="field-help">${p.help}</div>` : ''}
       </div>`;
     }).join('');
     box.style.display = 'block';
@@ -193,6 +369,24 @@ function selectModel(id) {
     box.style.display = 'none';
   }
 }
+
+document.querySelectorAll('.model-card').forEach(card => {
+  card.addEventListener('click', () => selectModel(card.dataset.model));
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      selectModel(card.dataset.model);
+    }
+  });
+});
+
+document.getElementById('train-form').addEventListener('submit', () => {
+  const btn = document.getElementById('btn-train');
+  document.getElementById('btn-train-label').textContent = 'Training…';
+  document.getElementById('btn-train-icon').className = 'ti ti-loader-2';
+  btn.classList.add('is-loading');
+  btn.disabled = true;
+});
 </script>
 {% endif %}
 {% endblock %}

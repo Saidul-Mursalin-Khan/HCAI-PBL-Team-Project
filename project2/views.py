@@ -29,6 +29,22 @@ MODEL_FEATURES = NUMERIC_FEATURES + ["island", "sex", "year"]
 CATEGORICAL_FEATURES = ["island", "sex", "year"]
 TREE_LEAF_OPTIONS = [3, 5, 7, 10, 14, 20, 30]
 LOGISTIC_C_OPTIONS = [0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0, 30.0]
+FEATURE_LABELS = {
+    "bill_length_mm": "Bill length",
+    "bill_depth_mm": "Bill depth",
+    "flipper_length_mm": "Flipper length",
+    "body_mass_g": "Body weight",
+    "island": "Island",
+    "sex": "Sex",
+    "year": "Observation year",
+    "species": "Penguin species",
+}
+FEATURE_UNITS = {
+    "bill_length_mm": "mm",
+    "bill_depth_mm": "mm",
+    "flipper_length_mm": "mm",
+    "body_mass_g": "g",
+}
 
 
 def _load_data():
@@ -216,7 +232,8 @@ def _mad(series):
 
 def _display_value(feature, value):
     if feature in NUMERIC_FEATURES:
-        return f"{float(value):.2f}"
+        unit = FEATURE_UNITS.get(feature, "")
+        return f"{float(value):.1f} {unit}".strip()
     return str(value)
 
 
@@ -255,7 +272,16 @@ def _counterfactuals(model, df, example_index, target_label, sample_count=3500, 
             {
                 "distance": float(row["distance"]),
                 "values": [
-                    {"feature": feature, "value": _display_value(feature, row[feature])}
+                    {
+                        "feature": feature,
+                        "label": FEATURE_LABELS[feature],
+                        "value": _display_value(feature, row[feature]),
+                        "changed": (
+                            abs(float(row[feature]) - float(base[feature])) > 0.01
+                            if feature in NUMERIC_FEATURES
+                            else str(row[feature]) != str(base[feature])
+                        ),
+                    }
                     for feature in MODEL_FEATURES
                 ],
             }
@@ -327,7 +353,7 @@ def _exact_logistic_bin_effect(model, rows, feature, width):
     return derivatives.mean(axis=0) * width
 
 
-def _plot_payload(title, plot_data):
+def _plot_payload(title, description, plot_data):
     palette = {
         "Adelie": "#275CB2",
         "Gentoo": "#1D9E75",
@@ -346,8 +372,8 @@ def _plot_payload(title, plot_data):
     for class_name, values in plot_data["curves"].items():
         points = []
         for x_value, y_value in zip(plot_data["x"], values):
-            px = 36 + ((x_value - x_min) / (x_max - x_min or 1)) * 300
-            py = 170 - ((y_value - y_min) / (y_max - y_min or 1)) * 130
+            px = 52 + ((x_value - x_min) / (x_max - x_min or 1)) * 320
+            py = 190 - ((y_value - y_min) / (y_max - y_min or 1)) * 162
             points.append(f"{px:.1f},{py:.1f}")
         series.append(
             {
@@ -358,6 +384,7 @@ def _plot_payload(title, plot_data):
         )
     return {
         "title": title,
+        "description": description,
         "series": series,
         "x_min": round(float(x_min), 2),
         "x_max": round(float(x_max), 2),
@@ -392,9 +419,10 @@ def _dataset_summary(df):
         rows.append(
             {
                 "feature": feature,
-                "type": "numeric" if feature in NUMERIC_FEATURES else "categorical",
+                "label": FEATURE_LABELS[feature],
+                "type": "Measurement" if feature in NUMERIC_FEATURES else "Category",
                 "detail": (
-                    f"{values.min():.2f} to {values.max():.2f}"
+                    f"{values.min():.1f} to {values.max():.1f} {FEATURE_UNITS[feature]}"
                     if feature in NUMERIC_FEATURES
                     else ", ".join(str(v) for v in sorted(values.astype(str).unique()))
                 ),
@@ -469,10 +497,23 @@ def _project_view(request, default_model_type="tree", default_stage=1):
         example_index,
         target_label,
     )
-    pdp = _plot_payload("PDP", _pdp(model, x_test.copy(), selected_feature))
-    ale = _plot_payload("ALE", _ale(model, model_type, x_test.copy(), selected_feature))
+    pdp = _plot_payload(
+        "Overall pattern",
+        "Shows the model's average prediction as this measurement changes.",
+        _pdp(model, x_test.copy(), selected_feature),
+    )
+    ale = _plot_payload(
+        "Changes near real penguins",
+        "Focuses on changes around measurement values that actually occur in the data.",
+        _ale(model, model_type, x_test.copy(), selected_feature),
+    )
     dataset_rows, preview_rows = _dataset_summary(df)
-    step_items = [(1, "Data"), (2, "Models"), (3, "Counterfactuals"), (4, "Effects")]
+    step_items = [
+        (1, "Meet the data"),
+        (2, "Choose a model"),
+        (3, "Try a what-if"),
+        (4, "See what matters"),
+    ]
     stage_links = [
         {
             "number": number,
@@ -488,28 +529,45 @@ def _project_view(request, default_model_type="tree", default_stage=1):
         }
         for number, label in step_items
     ]
+    previous_stage_url = stage_links[stage - 2]["url"] if stage > 1 else None
+    next_stage_url = stage_links[stage]["url"] if stage < 4 else None
 
     context = {
         "active_step": stage,
         "stage": stage,
         "step_items": step_items,
         "stage_links": stage_links,
+        "previous_stage_url": previous_stage_url,
+        "next_stage_url": next_stage_url,
         "title": "Project 2: Explainability",
         "model_type": model_type,
         "model_label": "Logistic regression" if model_type == "logistic" else "Decision tree",
         "lambda_value": lambda_value,
         "selected": selected,
+        "accuracy_percent": round(selected["accuracy"] * 100),
+        "complexity_explanation": (
+            f"This tree uses {int(selected['complexity'])} decision endpoints."
+            if model_type == "tree"
+            else "This score reflects how strongly the model relies on its inputs."
+        ),
         "candidate_rows": candidates,
         "summary": _model_summary(selected, model_type),
         "features": NUMERIC_FEATURES,
         "selected_feature": selected_feature,
+        "selected_feature_label": FEATURE_LABELS[selected_feature],
+        "feature_choices": [
+            {"value": feature, "label": FEATURE_LABELS[feature]}
+            for feature in NUMERIC_FEATURES
+        ],
         "classes": classes,
         "example_options": example_options,
         "example_index": example_index,
         "target_label": target_label,
+        "current_prediction": str(model.predict(df.loc[[example_index], MODEL_FEATURES])[0]),
         "selected_example": [
             {
                 "feature": feature,
+                "label": FEATURE_LABELS[feature],
                 "value": _display_value(feature, df.loc[example_index, feature]),
             }
             for feature in MODEL_FEATURES
@@ -522,14 +580,14 @@ def _project_view(request, default_model_type="tree", default_stage=1):
             ("logistic", "Logistic regression"),
         ],
         "dataset_rows": dataset_rows,
-        "preview_headers": MODEL_FEATURES + ["species"],
+        "preview_headers": [FEATURE_LABELS[feature] for feature in MODEL_FEATURES + ["species"]],
         "preview_rows": preview_rows,
         "train_count": len(x_train),
         "test_count": len(x_test),
         "total_count": len(df),
         "effect_note": (
-            "Logistic ALE uses the exact probability derivative; tree ALE uses finite "
-            "differences because tree predictions are piecewise constant."
+            f"These lines show how changes in {FEATURE_LABELS[selected_feature].lower()} "
+            "are connected to each predicted species. Look for lines that rise or fall clearly."
         ),
         "payload_json": json.dumps({"pdp": pdp, "ale": ale}),
     }
