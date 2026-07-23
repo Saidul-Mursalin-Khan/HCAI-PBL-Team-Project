@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'project3/style.css' %}">{% endblock %}
+{% block content %}
+<div class="box p3-box">
+    <div class="title-container"><div class="title">{{ title }}</div></div>
+    <div class="main-text">
+        {% include 'project3/_nav.html' %}
+        <p class="centered-text">
+            A TF-IDF + Logistic Regression classifier trained on the full
+            AG News training set (120,000 articles), evaluated on the held-out
+            test set (7,600 articles). This is the performance target the
+            human-AI team in later tasks should match or beat.
+        </p>
+        {% if results %}
+        <p class="centered-text"><strong>Test accuracy: {{ results.accuracy|floatformat:4 }}</strong></p>
+        <table class="p3-table">
+            <tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1-score</th><th>Support</th></tr>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.precision|floatformat:3 }}</td>
+                <td>{{ row.recall|floatformat:3 }}</td>
+                <td>{{ row.f1|floatformat:3 }}</td>
+                <td>{{ row.support|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% if chart %}<div class="p3-chart"><img src="data:image/png;base64,{{ chart }}" alt="Per-class F1 chart"></div>{% endif %}
+        {% else %}
+        <p class="centered-text">No results yet. Run <code>python manage.py train_baseline</code> to generate them.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

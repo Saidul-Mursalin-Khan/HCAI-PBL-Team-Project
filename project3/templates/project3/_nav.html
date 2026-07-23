@@ -1,0 +1,10 @@
+{% load static %}
+<div class="p3-nav">
+    <a href="{% url 'project3:index' %}">Overview</a>
+    <a href="{% url 'project3:task1' %}">1. Baseline</a>
+    <a href="{% url 'project3:task2' %}">2. Expert</a>
+    <a href="{% url 'project3:task3' %}">3. Learning to Defer</a>
+    <a href="{% url 'project3:task4' %}">4. Active Learning</a>
+    <a href="{% url 'project3:task5' %}">5. Try It</a>
+    <a href="{% static 'project3/Project3_Report.pdf' %}" download class="p3-report-btn">Download PDF report</a>
+</div>

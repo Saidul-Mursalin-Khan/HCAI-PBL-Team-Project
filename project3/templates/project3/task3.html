@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'project3/style.css' %}">{% endblock %}
+{% block content %}
+<div class="box p3-box">
+    <div class="title-container"><div class="title">{{ title }}</div></div>
+    <div class="main-text">
+        {% include 'project3/_nav.html' %}
+        <p class="centered-text">
+            With both AI predictions and (simulated) expert labels available
+            during training, we learn a small logistic-regression "gate"
+            that decides, per example, whether the system should trust its
+            own classifier or defer to the expert. The gate is trained to
+            defer exactly when doing so would flip a wrong AI answer into a
+            right one, and its decision threshold is calibrated on a
+            held-out split to directly maximise combined system accuracy.
+        </p>
+        {% if results %}
+        {% with g=results.learned_gate %}
+        <table class="p3-table">
+            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><td>AI only</td><td>{{ g.ai_only_accuracy|floatformat:4 }}</td></tr>
+            <tr><td>Expert only</td><td>{{ g.expert_only_accuracy|floatformat:4 }}</td></tr>
+            <tr><td><strong>Learned deferral system</strong></td><td><strong>{{ g.system_accuracy|floatformat:4 }}</strong></td></tr>
+            <tr><td>Oracle upper bound</td><td>{{ g.oracle_accuracy|floatformat:4 }}</td></tr>
+            <tr><td>Deferral rate</td><td>{{ g.deferral_rate|floatformat:3 }}</td></tr>
+            <tr><td>Accuracy on deferred subset</td><td>{{ g.accuracy_on_deferred_subset|floatformat:3 }}</td></tr>
+            <tr><td>Accuracy on kept subset</td><td>{{ g.accuracy_on_kept_subset|floatformat:3 }}</td></tr>
+            <tr><td>Calibrated gate threshold</td><td>{{ g.gate_threshold|floatformat:3 }}</td></tr>
+        </table>
+        {% endwith %}
+        {% if chart %}<div class="p3-chart"><img src="data:image/png;base64,{{ chart }}" alt="Deferral system comparison"></div>{% endif %}
+        <p class="centered-text">
+            The learned system beats AI-only accuracy by deferring
+            selectively and sparingly: it only asks the expert on the
+            examples where the AI is least confident, and only when the
+            calibrated threshold judges that querying is worth it. Note
+            accuracy on the deferred subset is well below the expert's
+            overall accuracy -- deferral is targeted at exactly the AI's
+            weakest, hardest cases, where nobody (human or model) does
+            great, but the expert still edges out the AI.
+        </p>
+        {% else %}
+        <p class="centered-text">No results yet. Run <code>python manage.py run_deferral</code>.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

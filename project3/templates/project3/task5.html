@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'project3/style.css' %}">{% endblock %}
+{% block content %}
+<div class="box p3-box">
+    <div class="title-container"><div class="title">{{ title }}</div></div>
+    <div class="main-text">
+        {% include 'project3/_nav.html' %}
+        <p class="centered-text">
+            Optional extension: paste a news snippet below. The trained
+            baseline classifies it, and the calibrated deferral threshold
+            from Task 3 decides whether the system would hand this one to a
+            human expert instead of trusting its own prediction.
+        </p>
+        <form method="post" class="p3-form">
+            {% csrf_token %}
+            <textarea name="text" rows="4" placeholder="Paste a news headline or short article...">{{ submitted_text }}</textarea>
+            <button type="submit">Classify</button>
+        </form>
+        {% if predicted_label %}
+        <table class="p3-table">
+            <tr><th>Predicted topic</th><td>{{ predicted_label }}</td></tr>
+            <tr><th>Confidence (top-1 prob.)</th><td>{{ confidence }}</td></tr>
+            <tr><th>Deferral threshold</th><td>{{ threshold }}</td></tr>
+            <tr><th>System decision</th>
+                <td>{% if would_defer %}<strong>Defer to expert</strong>{% else %}Use AI prediction{% endif %}</td>
+            </tr>
+        </table>
+        <table class="p3-table">
+            <tr><th colspan="2">Class probabilities</th></tr>
+            {% for name, p in probs.items %}
+            <tr><td>{{ name }}</td><td>{{ p }}</td></tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,6 +1,31 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'project3/style.css' %}">
+{% endblock %}
 {% block content %}
-<h1>Project 3: Explainability</h1>
-<p>Decision trees and counterfactual explanations on Palmer Penguins dataset.</p>
-<p>🚧 Under Construction...</p>
+<div class="box p3-box">
+    <div class="title-container">
+        <div class="title">Project 3: Active Learning for Learning-to-Defer</div>
+    </div>
+    <div class="main-text">
+        {% include 'project3/_nav.html' %}
+        <p class="centered-text">
+            We train a classifier on AG News, simulate a human expert with
+            uneven topic expertise, learn a policy for when the system
+            should defer to that expert instead of predicting itself, and
+            finally learn that policy using as few expert queries as
+            possible via active learning.
+        </p>
+        <div class="projects">
+            <div class="button-container">
+                <a href="{% url 'project3:task1' %}"><button type="button">Task 1: Baseline Classifier</button></a>
+                <a href="{% url 'project3:task2' %}"><button type="button">Task 2: Simulated Expert</button></a>
+                <a href="{% url 'project3:task3' %}"><button type="button">Task 3: Learning to Defer</button></a>
+                <a href="{% url 'project3:task4' %}"><button type="button">Task 4: Active Learning</button></a>
+                <a href="{% url 'project3:task5' %}"><button type="button">Task 5: Try It Yourself (optional)</button></a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

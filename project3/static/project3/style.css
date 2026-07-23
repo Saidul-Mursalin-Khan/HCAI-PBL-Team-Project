@@ -1,0 +1,79 @@
+.p3-box {
+  padding: 30px 40px 40px 40px;
+  max-width: 1000px;
+}
+
+.p3-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0 25px 0;
+}
+
+.p3-nav a {
+  text-decoration: none;
+  color: #275CB2;
+  border: 1px solid #275CB2;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 14px;
+}
+
+.p3-nav a:hover {
+  background-color: #275CB2;
+  color: white;
+}
+
+.p3-report-btn {
+  background-color: #1B3E7A !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.p3-report-btn:hover {
+  background-color: #12294f !important;
+}
+
+.p3-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px;
+}
+
+.p3-table th, .p3-table td {
+  border: 1px solid #d0d7e2;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.p3-table th {
+  background-color: #275CB2;
+  color: white;
+}
+
+.p3-chart {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.p3-chart img {
+  max-width: 100%;
+  border: 1px solid #d0d7e2;
+  border-radius: 4px;
+}
+
+.p3-form textarea {
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px;
+  border: 1px solid #d0d7e2;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.p3-form button {
+  margin-top: 10px;
+}

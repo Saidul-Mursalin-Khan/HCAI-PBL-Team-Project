@@ -1,0 +1,20 @@
+{
+  "specialist": {
+    "overall_accuracy": 0.7702631578947369,
+    "per_class_accuracy": {
+      "World": 0.9747368421052631,
+      "Sports": 0.9626315789473684,
+      "Business": 0.5515789473684211,
+      "Sci/Tech": 0.5921052631578947
+    }
+  },
+  "generalist": {
+    "overall_accuracy": 0.7525,
+    "per_class_accuracy": {
+      "World": 0.75,
+      "Sports": 0.7578947368421053,
+      "Business": 0.751578947368421,
+      "Sci/Tech": 0.7505263157894737
+    }
+  }
+}

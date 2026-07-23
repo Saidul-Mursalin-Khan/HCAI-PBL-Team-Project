@@ -1,0 +1,41 @@
+{
+  "learned_gate": {
+    "system_accuracy": 0.9238157894736843,
+    "ai_only_accuracy": 0.9217105263157894,
+    "expert_only_accuracy": 0.7702631578947369,
+    "oracle_accuracy": 0.9773684210526316,
+    "deferral_rate": 0.07039473684210526,
+    "accuracy_on_deferred_subset": 0.6485981308411215,
+    "accuracy_on_kept_subset": 0.9446567586694975,
+    "gate_threshold": 0.85
+  },
+  "fixed_threshold_baseline": {
+    "0.6": {
+      "system_accuracy": 0.9256578947368421,
+      "ai_only_accuracy": 0.9217105263157894,
+      "expert_only_accuracy": 0.7702631578947369,
+      "oracle_accuracy": 0.9773684210526316,
+      "deferral_rate": 0.08592105263157895,
+      "accuracy_on_deferred_subset": 0.6738131699846861,
+      "accuracy_on_kept_subset": 0.9493306463221535
+    },
+    "0.7": {
+      "system_accuracy": 0.9210526315789473,
+      "ai_only_accuracy": 0.9217105263157894,
+      "expert_only_accuracy": 0.7702631578947369,
+      "oracle_accuracy": 0.9773684210526316,
+      "deferral_rate": 0.1431578947368421,
+      "accuracy_on_deferred_subset": 0.6875,
+      "accuracy_on_kept_subset": 0.9600737100737101
+    },
+    "0.8": {
+      "system_accuracy": 0.9085526315789474,
+      "ai_only_accuracy": 0.9217105263157894,
+      "expert_only_accuracy": 0.7702631578947369,
+      "oracle_accuracy": 0.9773684210526316,
+      "deferral_rate": 0.2301315789473684,
+      "accuracy_on_deferred_subset": 0.7066895368782161,
+      "accuracy_on_kept_subset": 0.9688942061186122
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'project3/style.css' %}">{% endblock %}
+{% block content %}
+<div class="box p3-box">
+    <div class="title-container"><div class="title">{{ title }}</div></div>
+    <div class="main-text">
+        {% include 'project3/_nav.html' %}
+        <p class="centered-text">
+            We simulate two experts as class-conditional noisy oracles: a
+            <strong>Specialist</strong> who is strong on World/Sports news
+            but weak on Business/Sci-Tech jargon (mimicking a real person's
+            uneven expertise), and a <strong>Generalist</strong> control with
+            uniform accuracy across all topics.
+        </p>
+        {% if results %}
+        <table class="p3-table">
+            <tr><th>Expert</th><th>Overall</th>{% for name in label_names %}<th>{{ name }}</th>{% endfor %}</tr>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.overall|floatformat:3 }}</td>
+                {% for v in row.per_class %}<td>{{ v|floatformat:3 }}</td>{% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        {% if chart %}<div class="p3-chart"><img src="data:image/png;base64,{{ chart }}" alt="Expert accuracy chart"></div>{% endif %}
+        <p class="centered-text">
+            The Specialist's weakness on Business/Sci-Tech is intentional: it
+            gives the deferral system (Task 3) and the active learning
+            strategy (Task 4) something non-trivial to discover, instead of
+            an expert that is simply better everywhere.
+        </p>
+        {% else %}
+        <p class="centered-text">No results yet. Run <code>python manage.py run_expert_sim</code>.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
