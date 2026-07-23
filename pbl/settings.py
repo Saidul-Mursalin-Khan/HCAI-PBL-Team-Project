@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'project2',   # Explainability
     'project3',  # Active Learning for Learning-to-Defer
     'project4',   # Influence of future predictions over active learning of users’ tastes for recommender systems
-    'project5',   # Reinforcement Learning with Human Feedback
+       
 ]
 
 MIDDLEWARE = [

@@ -21,8 +21,8 @@ def index(request):
         {"name": "Project 1: Supervised Learning",   "url_name": "project1:index"},
         {"name": "Project 2: Explainability",       "url_name": "project2:index"},
         {"name": "Project 3: Active Learning for Learning-to-Defer",      "url_name": "project3:index"},
-        {"name": "Project 4: Recommender System",    "url_name": "project4:index"},
-        {"name": "Project 5: RLHF",                  "url_name": "project5:index"},
+        {"name": "Project 4: -----------",    "url_name": "project4:index"},
+        #{"name": "Project 5: RLHF",                  "url_name": "project5:index"},
     ]
     
     context = { 
