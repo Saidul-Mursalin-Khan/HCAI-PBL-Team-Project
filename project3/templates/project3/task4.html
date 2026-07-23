@@ -1,46 +1,64 @@
-{% extends 'base.html' %}
+{% extends "project3/base.html" %}
 {% load static %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'project3/style.css' %}">{% endblock %}
-{% block content %}
-<div class="box p3-box">
-    <div class="title-container"><div class="title">{{ title }}</div></div>
-    <div class="main-text">
-        {% include 'project3/_nav.html' %}
-        <p class="centered-text">
-            Now assume we start with <strong>zero</strong> expert labels and
-            may only query the expert a limited number of times. We compare
-            four strategies for choosing which training points to query:
-            <strong>random</strong> sampling (control), <strong>uncertainty</strong>
-            sampling (query the AI's least confident points), <strong>margin</strong>
-            sampling (query the smallest gap between the AI's top-2 classes),
-            and a <strong>hybrid</strong> of random + uncertainty. After each
-            query batch we retrain the Task 3 deferral gate on just the
-            queried points and evaluate on the held-out test set.
-        </p>
-        {% if results %}
-        {% if chart %}<div class="p3-chart"><img src="data:image/png;base64,{{ chart }}" alt="Active learning curves"></div>{% endif %}
+
+{% block p3_content %}
+{% include "project3/_roadmap.html" %}
+
+<section class="p3-card">
+  <div class="p3-stage-heading">
+    <p class="p3-kicker">Step {{ step }} of {{ last_step }}</p>
+    <h2>{{ title }}</h2>
+    <p>{{ blurb }}</p>
+  </div>
+
+  <div class="p3-callout">
+    <i class="ti ti-help-circle" aria-hidden="true"></i>
+    <div><strong>What is happening?</strong>Until now we peeked at all the expert's answers for free. In real life, every question costs the expert's time. So we start with <strong>zero</strong> answers and may only ask a few — the puzzle is choosing <em>which</em> stories are worth asking about.</div>
+  </div>
+
+  {% if results %}
+  <div class="p3-callout p3-info" style="border-left:5px solid var(--p3-blue);">
+    <i class="ti ti-list-check" aria-hidden="true"></i>
+    <div><strong>Four ways to choose what to ask</strong>
+      <span><strong>Random</strong> — just pick any stories (our baseline). <strong>Uncertainty</strong> — ask about the ones the computer is least sure of. <strong>Margin</strong> — ask when its top two guesses are neck-and-neck. <strong>Hybrid</strong> — mix random with uncertainty.</span>
+    </div>
+  </div>
+
+  {% if chart %}
+  <figure class="p3-chart">
+    <img src="data:image/png;base64,{{ chart }}" alt="Line chart of team accuracy as the number of expert questions grows">
+    <figcaption>Team accuracy as we allow more expert questions. Higher and to the left is better — more accuracy for fewer questions.</figcaption>
+  </figure>
+  {% endif %}
+
+  <p>The lesson: asking smart questions beats asking random ones — but only up to a point. Being <em>too</em> clever early on can backfire, which is why the balanced <strong>hybrid</strong> approach is the safe all-round choice.</p>
+
+  <details class="p3-learn-more">
+    <summary>Show me the technical details</summary>
+    <div class="p3-learn-more-body">
+      <p>After each batch of expert queries we retrain the Step 3 deferral gate on just the queried points and evaluate on the held-out test set. At very small budgets, pure uncertainty/margin sampling can collapse to an "always defer" policy: it only ever queries the AI's hardest points, so the gate never sees an easy, AI-correct example to contrast against. The hybrid strategy keeps some random exploration to avoid this failure mode, at a small efficiency cost once budgets grow.</p>
+      <div class="p3-table-wrap">
         <table class="p3-table">
-            <tr><th>Queries</th>{% for s in strategy_names %}<th>{{ s }}</th>{% endfor %}</tr>
+          <thead><tr><th>Expert questions</th>{% for s in strategy_names %}<th class="p3-num">{{ s }}</th>{% endfor %}</tr></thead>
+          <tbody>
             {% for row in table_rows %}
             <tr>
-                <td>{{ row.budget }}</td>
-                {% for a in row.accs %}<td>{{ a }}</td>{% endfor %}
+              <th scope="row">{{ row.budget }}</th>
+              {% for a in row.accs %}<td class="p3-num">{{ a }}</td>{% endfor %}
             </tr>
             {% endfor %}
+          </tbody>
         </table>
-        <p class="centered-text">
-            At very small budgets, pure uncertainty/margin sampling can
-            actually collapse to an "always defer" policy: because it only
-            ever queries the AI's hardest points, the gate never sees an
-            easy, AI-correct example to contrast against, so it can't learn
-            when deferring does <em>not</em> help. The hybrid strategy avoids
-            this failure mode by keeping some random exploration, at the
-            cost of using its query budget slightly less efficiently once
-            the budget is larger.
-        </p>
-        {% else %}
-        <p class="centered-text">No results yet. Run <code>python manage.py run_active_learning</code>.</p>
-        {% endif %}
+      </div>
     </div>
-</div>
+  </details>
+  {% else %}
+  <div class="p3-banner p3-warn">
+    <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+    <div><strong>No results yet.</strong><span>Run <code>python manage.py run_active_learning</code>.</span></div>
+  </div>
+  {% endif %}
+
+  {% include "project3/_actions.html" %}
+</section>
 {% endblock %}

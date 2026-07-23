@@ -1,48 +1,77 @@
-{% extends 'base.html' %}
+{% extends "project3/base.html" %}
 {% load static %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'project3/style.css' %}">{% endblock %}
-{% block content %}
-<div class="box p3-box">
-    <div class="title-container"><div class="title">{{ title }}</div></div>
-    <div class="main-text">
-        {% include 'project3/_nav.html' %}
-        <p class="centered-text">
-            With both AI predictions and (simulated) expert labels available
-            during training, we learn a small logistic-regression "gate"
-            that decides, per example, whether the system should trust its
-            own classifier or defer to the expert. The gate is trained to
-            defer exactly when doing so would flip a wrong AI answer into a
-            right one, and its decision threshold is calibrated on a
-            held-out split to directly maximise combined system accuracy.
-        </p>
-        {% if results %}
-        {% with g=results.learned_gate %}
-        <table class="p3-table">
-            <tr><th>Metric</th><th>Value</th></tr>
-            <tr><td>AI only</td><td>{{ g.ai_only_accuracy|floatformat:4 }}</td></tr>
-            <tr><td>Expert only</td><td>{{ g.expert_only_accuracy|floatformat:4 }}</td></tr>
-            <tr><td><strong>Learned deferral system</strong></td><td><strong>{{ g.system_accuracy|floatformat:4 }}</strong></td></tr>
-            <tr><td>Oracle upper bound</td><td>{{ g.oracle_accuracy|floatformat:4 }}</td></tr>
-            <tr><td>Deferral rate</td><td>{{ g.deferral_rate|floatformat:3 }}</td></tr>
-            <tr><td>Accuracy on deferred subset</td><td>{{ g.accuracy_on_deferred_subset|floatformat:3 }}</td></tr>
-            <tr><td>Accuracy on kept subset</td><td>{{ g.accuracy_on_kept_subset|floatformat:3 }}</td></tr>
-            <tr><td>Calibrated gate threshold</td><td>{{ g.gate_threshold|floatformat:3 }}</td></tr>
-        </table>
-        {% endwith %}
-        {% if chart %}<div class="p3-chart"><img src="data:image/png;base64,{{ chart }}" alt="Deferral system comparison"></div>{% endif %}
-        <p class="centered-text">
-            The learned system beats AI-only accuracy by deferring
-            selectively and sparingly: it only asks the expert on the
-            examples where the AI is least confident, and only when the
-            calibrated threshold judges that querying is worth it. Note
-            accuracy on the deferred subset is well below the expert's
-            overall accuracy -- deferral is targeted at exactly the AI's
-            weakest, hardest cases, where nobody (human or model) does
-            great, but the expert still edges out the AI.
-        </p>
-        {% else %}
-        <p class="centered-text">No results yet. Run <code>python manage.py run_deferral</code>.</p>
-        {% endif %}
+
+{% block p3_content %}
+{% include "project3/_roadmap.html" %}
+
+<section class="p3-card">
+  <div class="p3-stage-heading">
+    <p class="p3-kicker">Step {{ step }} of {{ last_step }}</p>
+    <h2>{{ title }}</h2>
+    <p>{{ blurb }}</p>
+  </div>
+
+  <div class="p3-callout">
+    <i class="ti ti-arrows-split" aria-hidden="true"></i>
+    <div><strong>What is happening?</strong>For every story, the computer now makes one extra decision <em>before</em> answering: "Am I confident enough to answer this myself, or should I pass it to the human expert?" We teach it to pass along exactly the stories where the human would do better.</div>
+  </div>
+
+  {% if results %}{% with g=results.learned_gate %}
+  <div class="p3-result-grid">
+    <div class="p3-hero-result">
+      <span class="p3-big">{{ gate_pct.system }}%</span>
+      <span>correct as a human + AI team</span>
     </div>
-</div>
+    <div class="p3-result-explain">
+      <h3>Did teamwork help?</h3>
+      <p>The team gets <strong>{{ gate_pct.system }}%</strong> right — better than the computer alone ({{ gate_pct.ai_only }}%) — while handing off only <strong>{{ gate_pct.deferral }}%</strong> of stories to the expert.</p>
+      <p>It asks for help sparingly, and only on the stories where it's genuinely unsure.</p>
+    </div>
+  </div>
+
+  <div class="p3-stats">
+    <div class="p3-stat"><span class="p3-stat-big">{{ gate_pct.ai_only }}%</span><span class="p3-stat-label">Computer alone</span></div>
+    <div class="p3-stat"><span class="p3-stat-big">{{ gate_pct.system }}%</span><span class="p3-stat-label">Human + AI team</span></div>
+    <div class="p3-stat"><span class="p3-stat-big">{{ gate_pct.deferral }}%</span><span class="p3-stat-label">Stories sent to the expert</span></div>
+    <div class="p3-stat"><span class="p3-stat-big">{{ gate_pct.oracle }}%</span><span class="p3-stat-label">Best possible (perfect choices)</span></div>
+  </div>
+
+  {% if chart %}
+  <figure class="p3-chart">
+    <img src="data:image/png;base64,{{ chart }}" alt="Bar chart comparing AI only, expert only, the learned team, and the best possible result">
+    <figcaption>The learned team sits above the computer alone, reaching toward the best-possible "oracle" score.</figcaption>
+  </figure>
+  {% endif %}
+
+  <details class="p3-learn-more">
+    <summary>Show me the technical details</summary>
+    <div class="p3-learn-more-body">
+      <p>A small logistic-regression <strong>gate</strong> is trained to defer exactly when doing so flips a wrong AI answer into a right one. Its decision threshold is calibrated on a held-out split to maximise combined accuracy. We judge it on deferral quality, not just accuracy: how often it defers, and how it does on the kept vs. deferred stories.</p>
+      <div class="p3-table-wrap">
+        <table class="p3-table">
+          <thead><tr><th>Metric</th><th class="p3-num">Value</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">AI only</th><td class="p3-num">{{ g.ai_only_accuracy|floatformat:4 }}</td></tr>
+            <tr><th scope="row">Expert only</th><td class="p3-num">{{ g.expert_only_accuracy|floatformat:4 }}</td></tr>
+            <tr><th scope="row">Learned deferral system</th><td class="p3-num">{{ g.system_accuracy|floatformat:4 }}</td></tr>
+            <tr><th scope="row">Oracle (upper bound)</th><td class="p3-num">{{ g.oracle_accuracy|floatformat:4 }}</td></tr>
+            <tr><th scope="row">Deferral rate</th><td class="p3-num">{{ g.deferral_rate|floatformat:3 }}</td></tr>
+            <tr><th scope="row">Accuracy on kept stories</th><td class="p3-num">{{ g.accuracy_on_kept_subset|floatformat:3 }}</td></tr>
+            <tr><th scope="row">Accuracy on deferred stories</th><td class="p3-num">{{ g.accuracy_on_deferred_subset|floatformat:3 }}</td></tr>
+            <tr><th scope="row">Calibrated gate threshold</th><td class="p3-num">{{ g.gate_threshold|floatformat:3 }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-bottom:0">Accuracy on the deferred subset is low because those are the hardest stories for everyone — but the expert still edges out the AI there, which is why deferring helps overall.</p>
+    </div>
+  </details>
+  {% endwith %}{% else %}
+  <div class="p3-banner p3-warn">
+    <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+    <div><strong>No results yet.</strong><span>Run <code>python manage.py run_deferral</code>.</span></div>
+  </div>
+  {% endif %}
+
+  {% include "project3/_actions.html" %}
+</section>
 {% endblock %}

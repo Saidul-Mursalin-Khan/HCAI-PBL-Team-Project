@@ -1,31 +1,62 @@
-{% extends 'base.html' %}
+{% extends "project3/base.html" %}
 {% load static %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'project3/style.css' %}">
-{% endblock %}
-{% block content %}
-<div class="box p3-box">
-    <div class="title-container">
-        <div class="title">Project 3: Active Learning for Learning-to-Defer</div>
-    </div>
-    <div class="main-text">
-        {% include 'project3/_nav.html' %}
-        <p class="centered-text">
-            We train a classifier on AG News, simulate a human expert with
-            uneven topic expertise, learn a policy for when the system
-            should defer to that expert instead of predicting itself, and
-            finally learn that policy using as few expert queries as
-            possible via active learning.
-        </p>
-        <div class="projects">
-            <div class="button-container">
-                <a href="{% url 'project3:task1' %}"><button type="button">Task 1: Baseline Classifier</button></a>
-                <a href="{% url 'project3:task2' %}"><button type="button">Task 2: Simulated Expert</button></a>
-                <a href="{% url 'project3:task3' %}"><button type="button">Task 3: Learning to Defer</button></a>
-                <a href="{% url 'project3:task4' %}"><button type="button">Task 4: Active Learning</button></a>
-                <a href="{% url 'project3:task5' %}"><button type="button">Task 5: Try It Yourself (optional)</button></a>
-            </div>
-        </div>
-    </div>
-</div>
+
+{% block p3_content %}
+<header class="p3-hero">
+  <div class="p3-hero-icon" aria-hidden="true"><i class="ti ti-users-group"></i></div>
+  <div>
+    <p class="p3-eyebrow">A guided, five-step journey</p>
+    <h1>Teaching a computer to know when to ask a human for help</h1>
+    <p class="p3-hero-copy">We build a news-sorting helper that answers the easy questions itself and hands the tricky ones to a human expert — and learns to do it while bothering the expert as little as possible. Follow the steps in order; each one unlocks the next.</p>
+  </div>
+</header>
+
+{% include "project3/_roadmap.html" %}
+
+<section class="p3-card">
+  <div class="p3-stage-heading">
+    <p class="p3-kicker">Welcome</p>
+    <h2>What you're going to see</h2>
+    <p>No experience needed. Each step explains itself in plain language, shows one clear result, and hides the technical extras behind an optional "Show me the details" panel.</p>
+  </div>
+
+  <div class="p3-callout">
+    <i class="ti ti-bulb" aria-hidden="true"></i>
+    <div><strong>The big idea</strong>A computer and a person are better together than either alone — <em>if</em> the computer knows which questions it should answer and which it should pass to the person.</div>
+  </div>
+
+  <div class="p3-tasklist">
+    <div class="p3-tasklist-item"><span class="p3-tl-num">1</span><span class="p3-tl-text"><strong>Baseline Classifier</strong><span>Teach the computer to sort news stories on its own.</span></span></div>
+    <div class="p3-tasklist-item"><span class="p3-tl-num">2</span><span class="p3-tl-text"><strong>The Human Expert</strong><span>Invent a realistic human helper — great at some topics, shaky at others.</span></span></div>
+    <div class="p3-tasklist-item"><span class="p3-tl-num">3</span><span class="p3-tl-text"><strong>Knowing When to Ask</strong><span>Learn when the computer should answer and when it should defer to the human.</span></span></div>
+    <div class="p3-tasklist-item"><span class="p3-tl-num">4</span><span class="p3-tl-text"><strong>Asking Smart Questions</strong><span>Get the most help from the fewest questions to the expert.</span></span></div>
+    <div class="p3-tasklist-item"><span class="p3-tl-num">5</span><span class="p3-tl-text"><strong>Try It Yourself</strong><span>Paste a news snippet and watch the team decide. (Optional)</span></span></div>
+  </div>
+
+  {% if all_done %}
+  <div class="p3-complete" style="margin-top:22px">
+    <span class="p3-emoji" aria-hidden="true">🎉</span>
+    <div><strong>You've completed the whole journey.</strong><p style="margin:2px 0 0">Revisit any step below, download the full report, or reset to start over.</p></div>
+  </div>
+  {% else %}
+  <p class="p3-progress-note" style="margin-top:22px">
+    {% if started %}You've completed <strong>{{ completed }}</strong> of <strong>{{ total_steps }}</strong> steps.{% else %}Ready when you are — this takes about five minutes.{% endif %}
+  </p>
+  {% endif %}
+
+  <div class="p3-cta-row">
+    <a class="p3-btn p3-btn-primary" href="{{ continue_url }}">
+      <i class="ti ti-{% if started %}player-play{% else %}rocket{% endif %}" aria-hidden="true"></i>
+      {% if all_done %}Revisit step {{ current_step }}{% elif started %}Continue at step {{ current_step }}{% else %}Start the journey{% endif %}
+    </a>
+    <a class="p3-btn p3-btn-outline" href="{% url 'project3:report' %}">
+      <i class="ti ti-file-download" aria-hidden="true"></i> Download the PDF report
+    </a>
+    {% if started %}
+    <a class="p3-btn p3-btn-ghost" href="{% url 'project3:reset' %}">
+      <i class="ti ti-refresh" aria-hidden="true"></i> Reset progress
+    </a>
+    {% endif %}
+  </div>
+</section>
 {% endblock %}

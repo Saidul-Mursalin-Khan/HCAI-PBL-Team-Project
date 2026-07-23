@@ -1,35 +1,71 @@
-{% extends 'base.html' %}
+{% extends "project3/base.html" %}
 {% load static %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'project3/style.css' %}">{% endblock %}
-{% block content %}
-<div class="box p3-box">
-    <div class="title-container"><div class="title">{{ title }}</div></div>
-    <div class="main-text">
-        {% include 'project3/_nav.html' %}
-        <p class="centered-text">
-            A TF-IDF + Logistic Regression classifier trained on the full
-            AG News training set (120,000 articles), evaluated on the held-out
-            test set (7,600 articles). This is the performance target the
-            human-AI team in later tasks should match or beat.
-        </p>
-        {% if results %}
-        <p class="centered-text"><strong>Test accuracy: {{ results.accuracy|floatformat:4 }}</strong></p>
+
+{% block p3_content %}
+{% include "project3/_roadmap.html" %}
+
+<section class="p3-card">
+  <div class="p3-stage-heading">
+    <p class="p3-kicker">Step {{ step }} of {{ last_step }}</p>
+    <h2>{{ title }}</h2>
+    <p>{{ blurb }}</p>
+  </div>
+
+  <div class="p3-callout">
+    <i class="ti ti-bulb" aria-hidden="true"></i>
+    <div><strong>What is happening?</strong>The computer reads thousands of example news stories that already have the right topic attached. It learns the word patterns for each topic, then we test it on stories it has never seen.</div>
+  </div>
+
+  {% if results %}
+  <div class="p3-result-grid">
+    <div class="p3-hero-result">
+      <span class="p3-big">{{ accuracy_pct }}%</span>
+      <span>of unseen news stories sorted correctly</span>
+    </div>
+    <div class="p3-result-explain">
+      <h3>What this means</h3>
+      <p>Out of every 100 brand-new stories, the computer puts about <strong>{{ accuracy_pct }}</strong> into the right topic — all on its own, with no human help yet.</p>
+      <p>This is the score to beat. In the next steps, a human expert joins the team to see if we can do even better.</p>
+    </div>
+  </div>
+
+  {% if chart %}
+  <figure class="p3-chart">
+    <img src="data:image/png;base64,{{ chart }}" alt="Bar chart of how well the computer does on each news topic">
+    <figcaption>How well the computer does on each of the four topics.</figcaption>
+  </figure>
+  {% endif %}
+
+  <details class="p3-learn-more">
+    <summary>Show me the technical details</summary>
+    <div class="p3-learn-more-body">
+      <p>Model: <strong>TF-IDF features + Logistic Regression</strong>, trained on the full AG News training set (120,000 articles) and evaluated on 7,600 held-out articles. We chose it because it is fast, accurate for topic sorting, and produces well-calibrated confidence scores — the signal the deferral gate needs in Step 3.</p>
+      <div class="p3-table-wrap">
         <table class="p3-table">
-            <tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1-score</th><th>Support</th></tr>
+          <thead><tr><th>Topic</th><th class="p3-num">Precision</th><th class="p3-num">Recall</th><th class="p3-num">F1-score</th><th class="p3-num">Support</th></tr></thead>
+          <tbody>
             {% for row in rows %}
             <tr>
-                <td>{{ row.name }}</td>
-                <td>{{ row.precision|floatformat:3 }}</td>
-                <td>{{ row.recall|floatformat:3 }}</td>
-                <td>{{ row.f1|floatformat:3 }}</td>
-                <td>{{ row.support|floatformat:0 }}</td>
+              <th scope="row">{{ row.name }}</th>
+              <td class="p3-num">{{ row.precision|floatformat:3 }}</td>
+              <td class="p3-num">{{ row.recall|floatformat:3 }}</td>
+              <td class="p3-num">{{ row.f1|floatformat:3 }}</td>
+              <td class="p3-num">{{ row.support|floatformat:0 }}</td>
             </tr>
             {% endfor %}
+          </tbody>
         </table>
-        {% if chart %}<div class="p3-chart"><img src="data:image/png;base64,{{ chart }}" alt="Per-class F1 chart"></div>{% endif %}
-        {% else %}
-        <p class="centered-text">No results yet. Run <code>python manage.py train_baseline</code> to generate them.</p>
-        {% endif %}
+      </div>
+      <p style="margin-bottom:0">Overall test accuracy: <strong>{{ results.accuracy|floatformat:4 }}</strong>.</p>
     </div>
-</div>
+  </details>
+  {% else %}
+  <div class="p3-banner p3-warn">
+    <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+    <div><strong>No results yet.</strong><span>Run <code>python manage.py train_baseline</code> to generate them.</span></div>
+  </div>
+  {% endif %}
+
+  {% include "project3/_actions.html" %}
+</section>
 {% endblock %}

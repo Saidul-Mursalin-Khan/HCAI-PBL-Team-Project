@@ -1,44 +1,136 @@
-import base64
-import io
-import json
-
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 import joblib
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
 from .ml.train_baseline import MODEL_DIR
 from .ml.data import LABEL_NAMES
+from . import charts
+from .report import build_report_pdf
+
+# The guided roadmap. Each entry: (step number, full label, short label).
+STEP_DEFS = [
+    (1, "Baseline Classifier", "Baseline"),
+    (2, "Simulated Expert", "Expert"),
+    (3, "Learning to Defer", "Defer"),
+    (4, "Active Learning", "Active"),
+    (5, "Try It Yourself", "Try It"),
+]
+LAST_STEP = STEP_DEFS[-1][0]
+SESSION_KEY = "p3_unlocked"
 
 
-def _load_json(name):
-    path = MODEL_DIR / name
-    if not path.exists():
-        return None
-    with open(path) as f:
-        return json.load(f)
+# --- Roadmap / progress helpers -----------------------------------------
+
+def _unlocked(request):
+    """Highest step the visitor has unlocked (1-based). Defaults to 1."""
+    try:
+        return max(1, int(request.session.get(SESSION_KEY, 1)))
+    except (TypeError, ValueError):
+        return 1
 
 
-def _fig_to_base64(fig):
-    buf = io.BytesIO()
-    fig.savefig(buf, format="png", bbox_inches="tight", dpi=110)
-    plt.close(fig)
-    buf.seek(0)
-    return base64.b64encode(buf.read()).decode("utf-8")
+def build_steps(request, current):
+    """Per-step metadata for the roadmap partial.
 
+    `current` is the step number of the page being viewed (0 for the
+    overview). `state` is one of: locked / current / done / available.
+    """
+    unlocked = _unlocked(request)
+    steps = []
+    for number, label, short in STEP_DEFS:
+        if number > unlocked:
+            state = "locked"
+        elif number == current:
+            state = "current"
+        elif number < unlocked:
+            state = "done"
+        else:
+            state = "available"
+        steps.append({
+            "number": number,
+            "label": label,
+            "short": short,
+            "url": reverse(f"project3:task{number}") if state != "locked" else "",
+            "state": state,
+        })
+    return steps
+
+
+def _pct(value, digits=0):
+    """Turn a 0..1 fraction into a percentage number for display."""
+    n = round(value * 100, digits)
+    return int(n) if digits == 0 else n
+
+
+def _guard(request, step):
+    """If `step` is not yet unlocked, return a redirect to the current
+    (highest unlocked) step. Otherwise return None."""
+    unlocked = _unlocked(request)
+    if step > unlocked:
+        target = min(unlocked, LAST_STEP)
+        return redirect(reverse(f"project3:task{target}"))
+    return None
+
+
+def _task_context(request, step, title, blurb):
+    """Common context shared by every task page."""
+    unlocked = _unlocked(request)
+    prev_url = reverse(f"project3:task{step - 1}") if step > 1 else reverse("project3:index")
+    next_url = reverse(f"project3:task{step + 1}") if step < LAST_STEP else None
+    return {
+        "title": title,
+        "blurb": blurb,
+        "step": step,
+        "last_step": LAST_STEP,
+        "steps": build_steps(request, step),
+        "is_done": step < unlocked,           # already completed before
+        "advance_url": reverse("project3:advance", args=[step]),
+        "prev_url": prev_url,
+        "next_url": next_url,
+    }
+
+
+def advance(request, step):
+    """Mark `step` complete, unlock the next one, and move the visitor on."""
+    unlocked = _unlocked(request)
+    request.session[SESSION_KEY] = max(unlocked, step + 1)
+    if step < LAST_STEP:
+        return redirect(reverse(f"project3:task{step + 1}"))
+    return redirect(reverse("project3:index") + "#roadmap")
+
+
+def reset_progress(request):
+    """Clear roadmap progress and return to the overview."""
+    request.session.pop(SESSION_KEY, None)
+    return redirect(reverse("project3:index"))
+
+
+# --- Pages ---------------------------------------------------------------
 
 def index(request):
+    unlocked = _unlocked(request)
+    current = min(unlocked, LAST_STEP)
+    completed = max(0, unlocked - 1)
     return render(request, "project3/index.html", {
-        "title": "Project 3: Active Learning for Learning-to-Defer",
+        "title": "Active Learning for Learning-to-Defer",
+        "steps": build_steps(request, 0),
+        "current_step": current,
+        "continue_url": reverse(f"project3:task{current}"),
+        "completed": completed,
+        "total_steps": LAST_STEP,
+        "started": unlocked > 1,
+        "all_done": unlocked > LAST_STEP,
     })
 
 
 def task1_baseline(request):
-    results = _load_json("baseline_results.json")
-    chart = None
-    rows = []
+    redirect_response = _guard(request, 1)
+    if redirect_response:
+        return redirect_response
+    results = charts.load_result("baseline_results.json")
+    rows, chart = [], None
     if results:
         report = results["report"]
         for name in LABEL_NAMES:
@@ -47,85 +139,72 @@ def task1_baseline(request):
                 "name": name, "precision": r["precision"], "recall": r["recall"],
                 "f1": r["f1-score"], "support": r["support"],
             })
-        fig, ax = plt.subplots(figsize=(5, 3.5))
-        f1s = [report[name]["f1-score"] for name in LABEL_NAMES]
-        ax.bar(LABEL_NAMES, f1s, color="#275CB2")
-        ax.set_ylim(0, 1)
-        ax.set_ylabel("F1-score")
-        ax.set_title("Baseline classifier: per-class F1")
-        chart = _fig_to_base64(fig)
-    return render(request, "project3/task1.html", {
-        "title": "Task 1 -- Baseline Classifier",
-        "results": results,
-        "rows": rows,
-        "chart": chart,
+        chart = charts.fig_to_base64(charts.baseline_fig(results))
+    ctx = _task_context(
+        request, 1, "Baseline Classifier",
+        "Teach the computer to sort news stories on its own — this is the "
+        "score the human + AI team will try to beat later.")
+    ctx.update({
+        "results": results, "rows": rows, "chart": chart,
+        "accuracy_pct": _pct(results["accuracy"]) if results else None,
     })
+    return render(request, "project3/task1.html", ctx)
 
 
 def task2_expert(request):
-    results = _load_json("expert_results.json")
-    chart = None
-    rows = []
+    redirect_response = _guard(request, 2)
+    if redirect_response:
+        return redirect_response
+    results = charts.load_result("expert_results.json")
+    rows, chart = [], None
     if results:
         for key, label in [("specialist", "Specialist"), ("generalist", "Generalist")]:
             r = results[key]
             rows.append({
                 "name": label,
                 "overall": r["overall_accuracy"],
+                "overall_pct": _pct(r["overall_accuracy"]),
                 "per_class": [r["per_class_accuracy"].get(n, 0) for n in LABEL_NAMES],
             })
-        fig, ax = plt.subplots(figsize=(5.5, 3.5))
-        width = 0.35
-        x = np.arange(len(LABEL_NAMES))
-        spec_vals = [results["specialist"]["per_class_accuracy"].get(n, 0) for n in LABEL_NAMES]
-        gen_vals = [results["generalist"]["per_class_accuracy"].get(n, 0) for n in LABEL_NAMES]
-        ax.bar(x - width / 2, spec_vals, width, label="Specialist expert", color="#275CB2")
-        ax.bar(x + width / 2, gen_vals, width, label="Generalist expert", color="#9BB6DE")
-        ax.set_xticks(x)
-        ax.set_xticklabels(LABEL_NAMES)
-        ax.set_ylim(0, 1)
-        ax.set_ylabel("Accuracy")
-        ax.set_title("Simulated expert accuracy by topic")
-        ax.legend()
-        chart = _fig_to_base64(fig)
-    return render(request, "project3/task2.html", {
-        "title": "Task 2 -- Simulated Expert",
-        "results": results,
-        "rows": rows,
-        "label_names": LABEL_NAMES,
-        "chart": chart,
-    })
+        chart = charts.fig_to_base64(charts.expert_fig(results))
+    ctx = _task_context(
+        request, 2, "The Human Expert",
+        "Invent a pretend human helper who is brilliant at some topics and "
+        "shaky at others — just like a real person.")
+    ctx.update({"results": results, "rows": rows, "label_names": LABEL_NAMES, "chart": chart})
+    return render(request, "project3/task2.html", ctx)
 
 
 def task3_deferral(request):
-    results = _load_json("deferral_results.json")
-    chart = None
+    redirect_response = _guard(request, 3)
+    if redirect_response:
+        return redirect_response
+    results = charts.load_result("deferral_results.json")
+    chart, gate_pct = None, {}
     if results:
-        gate = results["learned_gate"]
-        fig, ax = plt.subplots(figsize=(5.5, 3.5))
-        labels = ["AI only", "Expert only", "Learned\ndeferral", "Oracle\n(upper bound)"]
-        values = [
-            gate["ai_only_accuracy"], gate["expert_only_accuracy"],
-            gate["system_accuracy"], gate["oracle_accuracy"],
-        ]
-        colors = ["#9BB6DE", "#9BB6DE", "#275CB2", "#1B3E7A"]
-        ax.bar(labels, values, color=colors)
-        ax.set_ylim(0, 1)
-        ax.set_ylabel("Test accuracy")
-        ax.set_title("Learning-to-defer: system vs. baselines")
-        chart = _fig_to_base64(fig)
-    return render(request, "project3/task3.html", {
-        "title": "Task 3 -- Learning to Defer",
-        "results": results,
-        "chart": chart,
-    })
+        chart = charts.fig_to_base64(charts.deferral_fig(results))
+        g = results["learned_gate"]
+        gate_pct = {
+            "ai_only": _pct(g["ai_only_accuracy"], 1),
+            "expert_only": _pct(g["expert_only_accuracy"], 1),
+            "system": _pct(g["system_accuracy"], 1),
+            "oracle": _pct(g["oracle_accuracy"], 1),
+            "deferral": _pct(g["deferral_rate"]),
+        }
+    ctx = _task_context(
+        request, 3, "Knowing When to Ask for Help",
+        "Let the computer learn when to answer by itself and when to hand a "
+        "tricky story to the human expert.")
+    ctx.update({"results": results, "chart": chart, "gate_pct": gate_pct})
+    return render(request, "project3/task3.html", ctx)
 
 
 def task4_active_learning(request):
-    results = _load_json("active_learning_results.json")
-    chart = None
-    table_rows = []
-    strategy_names = []
+    redirect_response = _guard(request, 4)
+    if redirect_response:
+        return redirect_response
+    results = charts.load_result("active_learning_results.json")
+    chart, table_rows, strategy_names = None, [], []
     if results:
         strategy_names = list(results.keys())
         budgets = [c["n_queries"] for c in results[strategy_names[0]]]
@@ -134,35 +213,26 @@ def task4_active_learning(request):
                 "budget": b,
                 "accs": [round(results[s][i]["system_accuracy"], 4) for s in strategy_names],
             })
-        fig, ax = plt.subplots(figsize=(6, 4))
-        colors = {"random": "#9BB6DE", "uncertainty": "#F2A65A", "margin": "#E0574C", "hybrid": "#275CB2"}
-        for strategy, curve in results.items():
-            xs = [c["n_queries"] for c in curve]
-            ys = [c["system_accuracy"] for c in curve]
-            ax.plot(xs, ys, marker="o", label=strategy, color=colors.get(strategy))
-        ax.set_xscale("log")
-        ax.set_xlabel("Number of expert queries (log scale)")
-        ax.set_ylabel("System test accuracy")
-        ax.set_title("Active learning: accuracy vs. query budget")
-        ax.legend()
-        chart = _fig_to_base64(fig)
-    return render(request, "project3/task4.html", {
-        "title": "Task 4 -- Active Learning for Expert-Competence Discovery",
-        "results": results,
-        "table_rows": table_rows,
-        "strategy_names": strategy_names,
-        "chart": chart,
+        chart = charts.fig_to_base64(charts.active_learning_fig(results))
+    ctx = _task_context(
+        request, 4, "Asking Smart Questions",
+        "The expert's time is precious. Learn which few stories are worth "
+        "asking about so we get the most help from the fewest questions.")
+    ctx.update({
+        "results": results, "table_rows": table_rows,
+        "strategy_names": strategy_names, "chart": chart,
     })
+    return render(request, "project3/task4.html", ctx)
 
 
 def task5_try_it(request):
-    """Optional Task 5: a minimal interactive demo. The visitor pastes a
-    news snippet, the trained baseline classifies it, and the learned
-    deferral gate's threshold decides whether the system would defer to a
-    human expert. This is a lightweight stand-in for the full
-    expert-in-the-loop interface the assignment describes as an optional
-    extension."""
-    context = {"title": "Task 5 (Optional) -- Try It Yourself"}
+    redirect_response = _guard(request, 5)
+    if redirect_response:
+        return redirect_response
+    ctx = _task_context(
+        request, 5, "Try It Yourself",
+        "Your turn! Paste any news snippet and watch the team decide whether "
+        "the AI answers or asks the human expert.")
     if request.method == "POST":
         text = request.POST.get("text", "").strip()
         if text:
@@ -172,16 +242,31 @@ def task5_try_it(request):
             probs = clf.predict_proba(X)[0]
             pred_idx = int(np.argmax(probs))
 
-            deferral_results = _load_json("deferral_results.json")
-            threshold = deferral_results["learned_gate"]["gate_threshold"] if deferral_results else 0.5
+            deferral_results = charts.load_result("deferral_results.json")
+            threshold = (
+                deferral_results["learned_gate"]["gate_threshold"]
+                if deferral_results else 0.5
+            )
             top1 = float(np.max(probs))
-
-            context.update({
+            ctx.update({
                 "submitted_text": text,
                 "predicted_label": LABEL_NAMES[pred_idx],
                 "confidence": round(top1, 3),
-                "probs": {LABEL_NAMES[i]: round(float(p), 3) for i, p in enumerate(probs)},
+                "confidence_pct": round(top1 * 100),
+                "probs": [
+                    {"name": LABEL_NAMES[i], "p": round(float(p), 3),
+                     "pct": round(float(p) * 100)}
+                    for i, p in enumerate(probs)
+                ],
                 "would_defer": bool(top1 < threshold),
                 "threshold": round(float(threshold), 3),
             })
-    return render(request, "project3/task5.html", context)
+    return render(request, "project3/task5.html", ctx)
+
+
+def report(request):
+    """Generate and download the PDF report, live from the results JSON."""
+    pdf_bytes = build_report_pdf()
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="Project3_Report.pdf"'
+    return response

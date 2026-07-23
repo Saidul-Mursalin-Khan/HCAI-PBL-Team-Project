@@ -1,0 +1,16 @@
+{% load static %}
+<div class="p3-actions">
+  <a class="p3-btn p3-btn-outline" href="{{ prev_url }}">
+    <i class="ti ti-arrow-left" aria-hidden="true"></i> Back
+  </a>
+  {% if next_url %}
+    <a class="p3-btn p3-btn-primary" href="{{ advance_url }}">
+      {% if is_done %}Continue to step {{ step|add:1 }}{% else %}Got it — continue{% endif %}
+      <i class="ti ti-arrow-right" aria-hidden="true"></i>
+    </a>
+  {% else %}
+    <a class="p3-btn p3-btn-primary" href="{{ advance_url }}">
+      <i class="ti ti-flag-check" aria-hidden="true"></i> Finish the journey
+    </a>
+  {% endif %}
+</div>

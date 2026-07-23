@@ -1,0 +1,27 @@
+{% load static %}
+<nav class="p3-roadmap" aria-label="Project roadmap" id="roadmap">
+  {% for s in steps %}
+    {% if s.state == 'locked' %}
+      <span class="p3-step is-locked" aria-disabled="true" title="Finish the earlier steps to unlock this one">
+        <span class="p3-step-num"><i class="ti ti-lock" aria-hidden="true"></i></span>
+        <span class="p3-step-body">
+          <span class="p3-step-kicker">Step {{ s.number }}</span>
+          <span class="p3-step-label">{{ s.label }}</span>
+          <span class="p3-step-status">Locked</span>
+        </span>
+      </span>
+    {% else %}
+      <a href="{{ s.url }}"
+         class="p3-step {% if s.state == 'current' %}is-current{% elif s.state == 'done' %}is-done{% endif %}"
+         {% if s.state == 'current' %}aria-current="step"{% endif %}>
+        <span class="p3-step-num">{% if s.state == 'done' %}<i class="ti ti-check" aria-hidden="true"></i>{% else %}{{ s.number }}{% endif %}</span>
+        <span class="p3-step-body">
+          <span class="p3-step-kicker">Step {{ s.number }}</span>
+          <span class="p3-step-label">{{ s.label }}</span>
+          {% if s.state == 'current' %}<span class="p3-step-status">You are here</span>
+          {% elif s.state == 'done' %}<span class="p3-step-status">Done</span>{% endif %}
+        </span>
+      </a>
+    {% endif %}
+  {% endfor %}
+</nav>

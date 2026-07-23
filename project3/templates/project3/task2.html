@@ -1,39 +1,69 @@
-{% extends 'base.html' %}
+{% extends "project3/base.html" %}
 {% load static %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'project3/style.css' %}">{% endblock %}
-{% block content %}
-<div class="box p3-box">
-    <div class="title-container"><div class="title">{{ title }}</div></div>
-    <div class="main-text">
-        {% include 'project3/_nav.html' %}
-        <p class="centered-text">
-            We simulate two experts as class-conditional noisy oracles: a
-            <strong>Specialist</strong> who is strong on World/Sports news
-            but weak on Business/Sci-Tech jargon (mimicking a real person's
-            uneven expertise), and a <strong>Generalist</strong> control with
-            uniform accuracy across all topics.
-        </p>
-        {% if results %}
+
+{% block p3_content %}
+{% include "project3/_roadmap.html" %}
+
+<section class="p3-card">
+  <div class="p3-stage-heading">
+    <p class="p3-kicker">Step {{ step }} of {{ last_step }}</p>
+    <h2>{{ title }}</h2>
+    <p>{{ blurb }}</p>
+  </div>
+
+  <div class="p3-callout">
+    <i class="ti ti-user-heart" aria-hidden="true"></i>
+    <div><strong>What is happening?</strong>To practise teamwork, we need a human helper to team up with. Since a real person isn't sitting here, we create a pretend expert whose skills are realistic: excellent on some topics, weaker on others.</div>
+  </div>
+
+  {% if results %}
+  <div class="p3-stats">
+    <div class="p3-stat">
+      <span class="p3-stat-big">{{ rows.0.overall_pct }}%</span>
+      <span class="p3-stat-label">Specialist — right overall</span>
+    </div>
+    <div class="p3-stat">
+      <span class="p3-stat-big">{{ rows.1.overall_pct }}%</span>
+      <span class="p3-stat-label">Generalist — right overall</span>
+    </div>
+  </div>
+
+  <p>Meet two pretend experts. The <strong>Specialist</strong> is like a sports-and-world-news buff: brilliant there, but out of their depth on business and technology. The <strong>Generalist</strong> is a steady all-rounder who is equally so-so on everything. The Specialist's uneven skill is exactly what makes the rest of the project interesting.</p>
+
+  {% if chart %}
+  <figure class="p3-chart">
+    <img src="data:image/png;base64,{{ chart }}" alt="Bar chart comparing the two experts' accuracy on each topic">
+    <figcaption>Each expert's accuracy per topic. Notice the Specialist's dip on Business and Sci/Tech.</figcaption>
+  </figure>
+  {% endif %}
+
+  <details class="p3-learn-more">
+    <summary>Show me the technical details</summary>
+    <div class="p3-learn-more-body">
+      <p>Both experts are <strong>class-conditional noisy oracles</strong>: for each topic we set a probability that the expert answers correctly, and otherwise they pick a wrong label. The Specialist is tuned high on World/Sports and low on Business/Sci-Tech; the Generalist is uniform. This gives Steps 3 and 4 a genuine competence profile to discover.</p>
+      <div class="p3-table-wrap">
         <table class="p3-table">
-            <tr><th>Expert</th><th>Overall</th>{% for name in label_names %}<th>{{ name }}</th>{% endfor %}</tr>
+          <thead><tr><th>Expert</th><th class="p3-num">Overall</th>{% for name in label_names %}<th class="p3-num">{{ name }}</th>{% endfor %}</tr></thead>
+          <tbody>
             {% for row in rows %}
             <tr>
-                <td>{{ row.name }}</td>
-                <td>{{ row.overall|floatformat:3 }}</td>
-                {% for v in row.per_class %}<td>{{ v|floatformat:3 }}</td>{% endfor %}
+              <th scope="row">{{ row.name }}</th>
+              <td class="p3-num">{{ row.overall|floatformat:3 }}</td>
+              {% for v in row.per_class %}<td class="p3-num">{{ v|floatformat:3 }}</td>{% endfor %}
             </tr>
             {% endfor %}
+          </tbody>
         </table>
-        {% if chart %}<div class="p3-chart"><img src="data:image/png;base64,{{ chart }}" alt="Expert accuracy chart"></div>{% endif %}
-        <p class="centered-text">
-            The Specialist's weakness on Business/Sci-Tech is intentional: it
-            gives the deferral system (Task 3) and the active learning
-            strategy (Task 4) something non-trivial to discover, instead of
-            an expert that is simply better everywhere.
-        </p>
-        {% else %}
-        <p class="centered-text">No results yet. Run <code>python manage.py run_expert_sim</code>.</p>
-        {% endif %}
+      </div>
     </div>
-</div>
+  </details>
+  {% else %}
+  <div class="p3-banner p3-warn">
+    <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+    <div><strong>No results yet.</strong><span>Run <code>python manage.py run_expert_sim</code>.</span></div>
+  </div>
+  {% endif %}
+
+  {% include "project3/_actions.html" %}
+</section>
 {% endblock %}

@@ -1,38 +1,79 @@
-{% extends 'base.html' %}
+{% extends "project3/base.html" %}
 {% load static %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'project3/style.css' %}">{% endblock %}
-{% block content %}
-<div class="box p3-box">
-    <div class="title-container"><div class="title">{{ title }}</div></div>
-    <div class="main-text">
-        {% include 'project3/_nav.html' %}
-        <p class="centered-text">
-            Optional extension: paste a news snippet below. The trained
-            baseline classifies it, and the calibrated deferral threshold
-            from Task 3 decides whether the system would hand this one to a
-            human expert instead of trusting its own prediction.
-        </p>
-        <form method="post" class="p3-form">
-            {% csrf_token %}
-            <textarea name="text" rows="4" placeholder="Paste a news headline or short article...">{{ submitted_text }}</textarea>
-            <button type="submit">Classify</button>
-        </form>
-        {% if predicted_label %}
-        <table class="p3-table">
-            <tr><th>Predicted topic</th><td>{{ predicted_label }}</td></tr>
-            <tr><th>Confidence (top-1 prob.)</th><td>{{ confidence }}</td></tr>
-            <tr><th>Deferral threshold</th><td>{{ threshold }}</td></tr>
-            <tr><th>System decision</th>
-                <td>{% if would_defer %}<strong>Defer to expert</strong>{% else %}Use AI prediction{% endif %}</td>
-            </tr>
-        </table>
-        <table class="p3-table">
-            <tr><th colspan="2">Class probabilities</th></tr>
-            {% for name, p in probs.items %}
-            <tr><td>{{ name }}</td><td>{{ p }}</td></tr>
-            {% endfor %}
-        </table>
-        {% endif %}
+
+{% block p3_content %}
+{% include "project3/_roadmap.html" %}
+
+<section class="p3-card">
+  <div class="p3-stage-heading">
+    <p class="p3-kicker">Step {{ step }} of {{ last_step }} · Optional</p>
+    <h2>{{ title }}</h2>
+    <p>{{ blurb }}</p>
+  </div>
+
+  <div class="p3-callout">
+    <i class="ti ti-cursor-text" aria-hidden="true"></i>
+    <div><strong>How to try it</strong>Type or paste any short news snippet — a headline works great — then press the button. The team will show its topic guess and decide whether it's confident enough to answer, or whether it would rather ask the human expert.</div>
+  </div>
+
+  <form method="post" class="p3-form">
+    {% csrf_token %}
+    <div class="p3-field">
+      <label for="p3-text">Your news snippet</label>
+      <textarea id="p3-text" name="text" placeholder="e.g. Wall Street rallied today as tech stocks surged to a record high...">{{ submitted_text }}</textarea>
     </div>
-</div>
+    <div class="p3-cta-row" style="margin-top:14px">
+      <button type="submit" class="p3-btn p3-btn-primary"><i class="ti ti-wand" aria-hidden="true"></i> See what the team decides</button>
+    </div>
+  </form>
+
+  {% if predicted_label %}
+  {% if would_defer %}
+  <div class="p3-verdict p3-verdict-defer">
+    <i class="ti ti-user-question" aria-hidden="true"></i>
+    <div>
+      <h3>Ask the human expert</h3>
+      <p>The computer isn't confident enough here ({{ confidence_pct }}% sure), so the team would hand this one to a person.</p>
+    </div>
+  </div>
+  {% else %}
+  <div class="p3-verdict p3-verdict-ai">
+    <i class="ti ti-robot" aria-hidden="true"></i>
+    <div>
+      <h3>The AI answers: {{ predicted_label }}</h3>
+      <p>The computer is confident enough ({{ confidence_pct }}% sure) to answer this one itself — no need to bother the expert.</p>
+    </div>
+  </div>
+  {% endif %}
+
+<p>Its best guess is <strong>{{ predicted_label }}</strong>. Here is how sure it was about each topic:</p>
+
+  <div class="p3-probs">
+      {% for prob in probs %}
+      <div class="p3-prob">
+          <span class="p3-prob-name">{{ prob.name }}</span>
+
+          <div class="p3-prob-track">
+              <div class="p3-prob-fill"
+                  style="width: {{ prob.pct }}%; background:red; height:14px;">
+              </div>
+          </div>
+
+          <span class="p3-prob-val">
+              {{ prob.pct }}%
+          </span>
+      </div>
+      {% endfor %}
+  </div>
+
+  <details class="p3-learn-more">
+    <summary>Show me the technical details</summary>
+    <div class="p3-learn-more-body">
+      <p>The Step 1 classifier produces a probability for each topic. The team compares the top probability ({{ confidence }}) against the calibrated deferral threshold from Step 3 ({{ threshold }}). If confidence is below the threshold, the system defers to the expert; otherwise it answers itself.</p>
+    </div>
+  </details>
+  {% endif %}
+
+  {% include "project3/_actions.html" %}
+</section>
 {% endblock %}
