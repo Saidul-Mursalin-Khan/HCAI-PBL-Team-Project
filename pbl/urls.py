@@ -25,8 +25,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # path("demos/", include("demos.urls")),
     path('project1/', include('project1.urls')),  # Supervised Learning
-    path('project2/', include('project2.urls')),  # Active Learning
-    path('project3/', include('project3.urls')),  # Explainability
+    path('project2/', include('project2.urls')),   # Explainability
+    path('project3/', include('project3.urls')),   # Active Learning for Learning-to-Defer
     path('project4/', include('project4.urls')),  # Recommender System
     path('project5/', include('project5.urls')),  # RLHF
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

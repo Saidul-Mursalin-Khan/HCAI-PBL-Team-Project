@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     "home",
     # "demos",
     'project1',   # Supervised Learning Interface
-    'project2',   # Active Learning for Text Classification
-    'project3',   # Explainability
+    'project2',   # Explainability
+    'project3',  # Active Learning for Learning-to-Defer
     'project4',   # Influence of future predictions over active learning of users’ tastes for recommender systems
     'project5',   # Reinforcement Learning with Human Feedback
 ]
