@@ -26,7 +26,11 @@ A collection of interactive, human-centered machine learning applications develo
 
 ## Team Members
 
-- 
+- Asmaul Husna Urme
+- Saidul Mursalin Khan
+- Ridowana Tabassum
+- Doga Ruken Günes
+- Md Mehrabul Islam Zeshan
 
 ## Course Information
 
@@ -61,7 +65,7 @@ An interactive supervised learning interface for exploring the complete ML pipel
 - Evaluate model performance with suitable metrics
 - Explore each stage of a typical ML workflow
 
-> Demonstrates how automated ML tools can simplify model development while keeping users involved in key decisions.
+
 
 ---
 
@@ -88,7 +92,6 @@ The system generates personalized counterfactual examples showing how prediction
 - Partial Dependence Plots (PDP)
 - Accumulated Local Effects (ALE) plots
 
-> Demonstrates how explainable AI techniques improve trust and understanding of ML systems.
 
 ---
 
@@ -103,8 +106,6 @@ A human-in-the-loop system combining **active learning** with **learning-to-defe
 - Implement learning-to-defer mechanisms for human-AI collaboration
 - Compare traditional ML approaches against human-augmented systems
 - Evaluate how expert intervention affects performance and reliability
-
-> Highlights the importance of trustworthy AI systems that understand their limitations and collaborate effectively with humans.
 
 ---
 
