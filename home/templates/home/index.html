@@ -1,52 +1,74 @@
 {% extends 'base.html' %}
 
-{%  load static %}
+{% load static %}
 
 {% block extra_css %}
-        <link rel= "stylesheet" href="{% static 'home/style.css'%}">
+    <link rel="stylesheet" href="{% static 'home/style.css' %}">
 {% endblock %}
 
 {% block content %}
 
 <div class="box">
     <div class="title-container">
-        <div class = "title">HCAI project hub</div>
+        <div class="title">Human-Centric Artificial Intelligence (SoSe 2026)</div>
     </div>
 
     <div class="main-text">
-    <div class="summary" >
-        <p class="centered-text">This page serves as the central hub for student 
-        projects developed as part of the <strong>Human-Centric Artificial Intelligence</strong> 
-        course, by the following group:</p>
-    </div>
-    
-    <div class="students">
-        <ul class="student-list">
-            {% for student in students %}
-                <li class="student-item">
-                    <span class="student-name">{{ student.name }}</span> –
-                    <span class="student-id">{{ student.matriculation }}</span>
-                </li>
-            {% empty %}
-                <li>No students found.</li>
-            {% endfor %}
-        </ul>
-    </div>
-    
-    
-    <div class="projects">
-        <h2 style="text-align: center;">Projects</h2>
-        <div class="button-container">
-            {% for project in projects %}
-                <form action="{% url project.url_name %}" method="get" style="margin-bottom: 10px;">
-                    {% csrf_token %}
-                    <button type="submit">{{ project.name }}</button>
-                </form>
-            {% endfor %}
+        <div class="summary">
+            <p class="centered-text">
+                Curated collection of projects from Human-Centric Artificial Intelligence course (SoSe26) at Hamburg University of Technology
+                <br>
+                <a href="#" class="gitlab-link">GitLab Repository: →</a>
+            </p>
         </div>
-    </div>
-    
 
+<!-- CONTRIBUTORS SECTION -->
+        <div class="contributors-section">
+            <h2 class="section-title" style="text-align: center;">Contributors</h2>
+            <div class="contributors-grid">
+                {% for student in students %}
+                <div class="contributor-card">
+                    <span class="contributor-name">{{ student.name }}</span>
+                    <span class="contributor-matriculation">{{ student.matriculation }}</span>
+                </div>
+                {% empty %}
+                <div class="contributor-card">No students found.</div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- PROJECTS SECTION -->
+        <div class="projects-section">
+            <h2 class="section-title">Projects</h2>
+            
+            <div class="projects-grid">
+                {% for project in projects %}
+                <div class="project-card">
+                    <div class="project-left">
+                        <div class="project-number">{{ project.number }}</div>
+                        <div class="project-content">
+                            <div class="project-name">{{ project.name }}</div>
+                            <div class="project-description">{{ project.description }}</div>
+                            <div class="project-tags">
+                                {% for tag in project.tags %}
+                                <span class="tag">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{% url project.url_name %}" class="project-button">Try it Out</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        
+       <!------ <hr class="separator-line">-->
+       
+        
+        
+        
+    </div>
 </div>
 
 {% endblock %}

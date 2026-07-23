@@ -16,14 +16,40 @@ def index(request):
     ]
     
     projects = [
-        # {"name": "Home", "url_name": "home:index"},
-        # {"name": "Home 2", "url_name": "home:index"},
-        {"name": "Project 1: Supervised Learning",   "url_name": "project1:index"},
-        {"name": "Project 2: Explainability",       "url_name": "project2:index"},
-        {"name": "Project 3: Active Learning for Learning-to-Defer",      "url_name": "project3:index"},
-        {"name": "Project 4: -----------",    "url_name": "project4:index"},
-        #{"name": "Project 5: RLHF",                  "url_name": "project5:index"},
-    ]
+    {
+        "number": "01",
+        "name": "Supervised Learning",
+        "description": "supervised learning",
+        "tags": ["data loader", "data visualization", "model training", "dataset"],
+        "url_name": "project1:index"
+    },
+    {
+        "number": "02",
+        "name": "Explainability",
+        "description": "interpretability",
+        "tags": ["model complexity", "counterfactual explanation", "decision tree", "logistic regression"],
+        "url_name": "project2:index"
+    },
+    
+    {
+    "number": "03",
+    "name": "Active Learning for Learning-to-Defer",
+    "description": "An active learning framework for text classification with expert deferral using the IMDB sentiment analysis dataset.",
+    "tags": ["active learning", "learning-to-defer", "text classifier", "sentiment analysis", "IMDB dataset"],
+    "url_name": "project3:index"
+    },
+    {
+        "number": "04",
+        "name": "-----",
+         "description": "m",
+        "tags": "",
+        "url_name": "project4:index"
+        #"description": "movie recommendation",
+        #"tags": ["active learning", "hypothesis", "case study", "matrix factorization"],
+        #"url_name": "project4:index"
+    },
+    
+]
     
     context = { 
         "students": students, 
