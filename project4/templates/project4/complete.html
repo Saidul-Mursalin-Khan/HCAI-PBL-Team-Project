@@ -1,0 +1,30 @@
+{% extends "project4/layout.html" %}
+
+{% block project4_content %}
+<section class="p4-complete">
+    <div class="p4-complete-mark" aria-hidden="true">✓</div>
+    <span class="p4-eyebrow">Study complete</span>
+    <h1>Thank you for sharing your movie preferences.</h1>
+    <p class="p4-lead p4-lead-small">
+        Your responses were recorded under the random code below. The validation
+        answers were used only to compare the two fitted models.
+    </p>
+    <div class="p4-code-block">
+        <span>Random study code</span>
+        <strong>{{ study_session.public_id }}</strong>
+    </div>
+    <div class="p4-complete-stats">
+        <div><strong>{{ metrics.pairwise.training_choices }}</strong><span>pairwise training choices</span></div>
+        <div><strong>{{ metrics.ranking.training_rankings }}</strong><span>ten-movie rankings</span></div>
+        <div><strong>{{ metrics.pairwise.trials }}</strong><span>held-out validations</span></div>
+    </div>
+    <p class="p4-muted">
+        This prototype intentionally does not show model scores to participants, which avoids influencing
+        their final judgement. Responses and per-session model metrics are stored for later analysis.
+    </p>
+    <div class="p4-actions p4-actions-center">
+        <a class="p4-button p4-button-primary" href="{% url 'project4:index' %}">Return to overview</a>
+        <a class="p4-button p4-button-secondary" href="{% url 'project4:download_report' %}">Read the study report</a>
+    </div>
+</section>
+{% endblock %}

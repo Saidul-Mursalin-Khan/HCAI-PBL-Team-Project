@@ -1,0 +1,54 @@
+{% extends "project4/layout.html" %}
+{% load static %}
+
+{% block project4_content %}
+<section class="p4-task-head">
+    <div>
+        <span class="p4-eyebrow">Method 2 · Ten-movie ranking</span>
+        <h1>Rank every movie from most to least preferred.</h1>
+        <p>Drag cards or use the arrow buttons. Position 1 is the movie you would most like to watch.</p>
+    </div>
+    <div class="p4-progress-copy"><strong>{{ trial_number }}/{{ trial_total }}</strong><span>rankings</span></div>
+</section>
+<div class="p4-progress" role="progressbar" aria-valuemin="1" aria-valuemax="{{ trial_total }}" aria-valuenow="{{ trial_number }}">
+    <span style="width: {% widthratio trial_number trial_total 100 %}%"></span>
+</div>
+
+{% if error %}<div class="p4-error" role="alert">{{ error }}</div>{% endif %}
+<form method="post" class="p4-ranking-form" data-ranking-form data-timed-form>
+    {% csrf_token %}
+    <input type="hidden" name="ranking" value="[]">
+    <input type="hidden" name="response_time_ms" value="0">
+    <p class="p4-sr-only" aria-live="polite" data-ranking-status></p>
+    <ol class="p4-ranking-list" data-ranking-list>
+        {% for movie in movies %}
+        <li class="p4-rank-card" draggable="true" tabindex="0" data-movie-id="{{ movie.id }}">
+            <span class="p4-rank-number" aria-hidden="true">{{ forloop.counter }}</span>
+            <span class="p4-drag-handle" aria-hidden="true">⠿</span>
+            <div class="p4-rank-copy">
+                <strong>{{ movie.title }}</strong>
+                <span>{{ movie.year }} · {{ movie.duration }} min · {{ movie.genres|join:", " }}</span>
+                <small>{{ movie.director }} · {{ movie.actors|slice:":2"|join:", " }}</small>
+            </div>
+            <div class="p4-rank-controls" aria-label="Move {{ movie.title }}">
+                <button type="button" data-move="up" aria-label="Move {{ movie.title }} up">↑</button>
+                <button type="button" data-move="down" aria-label="Move {{ movie.title }} down">↓</button>
+            </div>
+        </li>
+        {% endfor %}
+    </ol>
+    <label class="p4-check-row p4-confirm-row">
+        <input type="checkbox" data-ranking-confirm>
+        <span>I confirm that this order represents my preference.</span>
+    </label>
+    <div class="p4-actions p4-actions-end">
+        <button class="p4-button p4-button-secondary" type="button" data-ranking-reset>Reset order</button>
+        <button class="p4-button p4-button-primary" type="submit" data-ranking-submit disabled>Submit ranking</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block project4_script %}
+<script src="{% static 'project4/js/timing.js' %}"></script>
+<script src="{% static 'project4/js/ranking.js' %}"></script>
+{% endblock %}

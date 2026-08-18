@@ -1,6 +1,69 @@
-{% extends 'base.html' %}
-{% block content %}
-<h1>Project 4: Recommender System</h1>
-<p>Cold-start movie recommendations using active learning on MovieLens dataset.</p>
-<p>🚧 Under Construction...</p>
+{% extends "project4/layout.html" %}
+
+{% block project4_content %}
+<section class="p4-hero">
+    <div class="p4-hero-copy">
+        <span class="p4-eyebrow">Movie preference elicitation</span>
+        <h1>Two ways to teach a recommender what you like.</h1>
+        <p class="p4-lead">
+            Compare quick choices between two movies with expressive rankings of ten.
+            The study estimates a personal utility model from metadata - never from public
+            star ratings.
+        </p>
+        <div class="p4-actions">
+            {% if active_study %}
+                <a class="p4-button p4-button-primary" href="{% url 'project4:study' %}">Continue study</a>
+            {% else %}
+                <a class="p4-button p4-button-primary" href="{% url 'project4:consent' %}">Start study</a>
+            {% endif %}
+            <a class="p4-button p4-button-secondary" href="{% url 'project4:download_report' %}">
+                Download report <span aria-hidden="true">↓</span>
+            </a>
+        </div>
+        <p class="p4-meta-line">Estimated time: about 12 minutes · Desktop or tablet recommended · Random study ID</p>
+    </div>
+    <div class="p4-hero-visual" aria-label="Illustration comparing pairwise choices and rankings">
+        <div class="p4-visual-label">Pairwise</div>
+        <div class="p4-mini-pair">
+            <span>A</span><strong>or</strong><span>B</span>
+        </div>
+        <div class="p4-visual-divider"><span>vs</span></div>
+        <div class="p4-visual-label">Ranking</div>
+        <ol class="p4-mini-ranking">
+            <li><span>1</span> Movie A</li>
+            <li><span>2</span> Movie B</li>
+            <li><span>3</span> Movie C</li>
+        </ol>
+    </div>
+</section>
+
+<section class="p4-section" aria-labelledby="study-overview">
+    <div class="p4-section-heading">
+        <span class="p4-eyebrow">Study overview</span>
+        <h2 id="study-overview">Same movies. Different ways to express taste.</h2>
+    </div>
+    <div class="p4-method-grid">
+        <article class="p4-method-card">
+            <span class="p4-method-number">01</span>
+            <h3>Choose between two</h3>
+            <p>Select the movie you would rather watch. Ten choices train a Bradley-Terry preference model.</p>
+        </article>
+        <article class="p4-method-card p4-method-card-accent">
+            <span class="p4-method-number">02</span>
+            <h3>Rank a set of ten</h3>
+            <p>Order every movie from most to least preferred. A Plackett-Luce model learns from the full ordering.</p>
+        </article>
+        <article class="p4-method-card">
+            <span class="p4-method-number">03</span>
+            <h3>Validate both models</h3>
+            <p>New choices evaluate both methods fairly. Validation answers never update either model.</p>
+        </article>
+    </div>
+</section>
+
+<section class="p4-info-strip" aria-label="Study safeguards">
+    <div><strong>Counterbalanced</strong><span>Interface order alternates across participants.</span></div>
+    <div><strong>Privacy first</strong><span>No direct identifiers or third-party tracking.</span></div>
+    <div><strong>Reproducible</strong><span>Seeded movie sampling and fixed model settings.</span></div>
+</section>
 {% endblock %}

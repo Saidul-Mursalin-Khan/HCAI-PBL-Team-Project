@@ -1,0 +1,24 @@
+{% extends "project4/layout.html" %}
+
+{% block project4_content %}
+<section class="p4-narrow">
+    <span class="p4-eyebrow">Short reflection</span>
+    <h1>How did the {% if method == "pairwise" %}pairwise choice{% else %}ten-movie ranking{% endif %} method feel?</h1>
+    <p class="p4-lead p4-lead-small">Your experience matters as much as predictive performance.</p>
+    <form method="post" class="p4-form p4-likert-form">
+        {% csrf_token %}
+        {% for field in form %}
+        <fieldset class="p4-likert">
+            <legend>{{ field.label }}</legend>
+            <p>{{ field.help_text }}</p>
+            {{ field }}
+            {% if field.errors %}<div class="p4-field-error">{{ field.errors|striptags }}</div>{% endif %}
+        </fieldset>
+        {% endfor %}
+        <div class="p4-actions p4-actions-end">
+            <button class="p4-button p4-button-primary" type="submit">Continue</button>
+        </div>
+    </form>
+</section>
+{% endblock %}
+

@@ -2,4 +2,6 @@ from django.apps import AppConfig
 
 
 class Project4Config(AppConfig):
-    name = 'project4'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "project4"
+    verbose_name = "Project 4 - Preference Elicitation"
