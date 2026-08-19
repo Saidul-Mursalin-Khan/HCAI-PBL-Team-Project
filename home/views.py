@@ -40,13 +40,10 @@ def index(request):
     },
     {
         "number": "04",
-        "name": "-----",
-         "description": "m",
-        "tags": "",
+        "name": "Preference Elicitation",
+        "description": "Compare repeated pairwise movie choices with ten-movie rankings to learn and evaluate a new user's preferences.",
+        "tags": ["preference elicitation", "Bradley-Terry", "Plackett-Luce", "movie recommender"],
         "url_name": "project4:index"
-        #"description": "movie recommendation",
-        #"tags": ["active learning", "hypothesis", "case study", "matrix factorization"],
-        #"url_name": "project4:index"
     },
     
 ]
@@ -57,4 +54,3 @@ def index(request):
     }
     
     return HttpResponse(template.render(context, request))
-

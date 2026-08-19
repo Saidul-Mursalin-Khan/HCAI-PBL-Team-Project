@@ -1,0 +1,21 @@
+<div class="p4-movie-poster" aria-hidden="true">
+    <span>{{ movie.initial }}</span>
+</div>
+<div class="p4-movie-copy">
+    <div class="p4-movie-topline">
+        <span>{{ movie.year }}</span>
+        <span>{{ movie.duration }} min</span>
+        <span>{{ movie.content_rating }}</span>
+    </div>
+    <h2>{{ movie.title }}</h2>
+    <div class="p4-tags" aria-label="Genres">
+        {% for genre in movie.genres|slice:":4" %}<span>{{ genre }}</span>{% endfor %}
+    </div>
+    <dl class="p4-movie-meta">
+        <div><dt>Director</dt><dd>{{ movie.director }}</dd></div>
+        <div><dt>Cast</dt><dd>{{ movie.actors|join:", "|default:"Not listed" }}</dd></div>
+        <div><dt>Language</dt><dd>{{ movie.language }} · {{ movie.country }}</dd></div>
+        {% if movie.keywords %}<div><dt>Themes</dt><dd>{{ movie.keywords|join:", " }}</dd></div>{% endif %}
+    </dl>
+</div>
+

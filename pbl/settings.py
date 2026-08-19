@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'project1',   # Supervised Learning Interface
     'project2',   # Explainability
     'project3',  # Active Learning for Learning-to-Defer
-    'project4',   # Influence of future predictions over active learning of users’ tastes for recommender systems
+    'project4.apps.Project4Config',  # Preference elicitation for movie recommendation
        
 ]
 

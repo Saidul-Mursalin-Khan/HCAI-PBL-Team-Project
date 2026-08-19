@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="{% static 'project4/favicon.svg' %}" type="image/svg+xml">
+<link rel="stylesheet" href="{% static 'project4/css/study.css' %}">
+{% endblock %}
+
+{% block content %}
+<a class="p4-skip-link" href="#p4-main">Skip to main content</a>
+<div class="p4-app">
+    <header class="p4-header">
+        <a class="p4-brand" href="{% url 'project4:index' %}" aria-label="Project 4 home">
+            <span class="p4-brand-mark" aria-hidden="true">P4</span>
+            <span>
+                <strong>Preference Lab</strong>
+                <small>Human-Centric AI · Project 4</small>
+            </span>
+        </a>
+        <span class="p4-study-chip">Study prototype</span>
+    </header>
+
+    <main id="p4-main" class="p4-main">
+        {% block project4_content %}{% endblock %}
+    </main>
+
+    <footer class="p4-footer">
+        <span>IMDb 5000 metadata · No names or email addresses collected</span>
+        <a href="{% url 'project4:download_report' %}">Methods &amp; study design PDF</a>
+    </footer>
+</div>
+{% endblock %}
+
+{% block script %}
+{% block project4_script %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "project4/layout.html" %}
+
+{% block project4_content %}
+<section class="p4-narrow">
+    <a class="p4-back-link" href="{% url 'project4:index' %}">← Back to overview</a>
+    <span class="p4-eyebrow">Before you begin</span>
+    <h1>Participant information &amp; consent</h1>
+    <p class="p4-lead p4-lead-small">
+        This is a course-project prototype for comparing two movie preference interfaces.
+        There are no right or wrong answers, and you may stop at any time by closing the page.
+    </p>
+
+    <div class="p4-notice">
+        <h2>What happens</h2>
+        <ul>
+            <li>You make ten two-movie choices and rank two sets of ten movies.</li>
+            <li>You answer short usability questions and twenty held-out validation choices.</li>
+            <li>The application stores pseudonymous choices, rankings and response times under a random study ID.</li>
+        </ul>
+    </div>
+
+    <form method="post" class="p4-form p4-consent-form" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="p4-error">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+            <label class="p4-check-row" for="{{ field.id_for_label }}">
+                {{ field }}
+                <span>{{ field.label }}</span>
+            </label>
+            {% if field.errors %}<div class="p4-field-error">{{ field.errors|striptags }}</div>{% endif %}
+        {% endfor %}
+        <div class="p4-actions p4-actions-end">
+            <a class="p4-button p4-button-secondary" href="{% url 'project4:index' %}">Cancel</a>
+            <button class="p4-button p4-button-primary" type="submit">I agree - begin</button>
+        </div>
+    </form>
+</section>
+{% endblock %}
