@@ -17,6 +17,7 @@ A collection of interactive, human-centered machine learning applications develo
   - [01 — Automated Machine Learning](#project-01-automated-machine-learning-automl)
   - [02 — Explainability](#project-02-explainability)
   - [03 — Active Learning for Learning-to-Defer](#project-03-active-learning-for-learning-to-defer)
+  - [04 — Preference Elicitation](#project-04-Preference-elicitation)
 - [Technologies Used](#technologies-used)
 - [Key Concepts Covered](#key-human-centric-ai-concepts-covered)
 - [Prerequisites](#prerequisites)
