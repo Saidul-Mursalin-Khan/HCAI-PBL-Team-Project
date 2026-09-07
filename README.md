@@ -108,6 +108,19 @@ A human-in-the-loop system combining **active learning** with **learning-to-defe
 - Evaluate how expert intervention affects performance and reliability
 
 ---
+### Project 4: Preference Elicitation
+
+A movie-recommendation preference elicitation system that estimates a new user's latent taste vector from a small number of interactions, comparing two elicitation interfaces (pairwise choice vs. full ranking) via a rigorous, ready-to-run user study design.
+
+**Features**
+- Extract a compact, justified feature representation for ~4,800 movies from the IMDb 5000 metadata dataset
+- Learn a linear utility model from limited pairwise comparisons (Bradley-Terry)
+- Extend Bradley-Terry to full rankings of multiple items (Plackett-Luce)
+- Run a counterbalanced, within-subject participant study comparing the two elicitation interfaces
+- Score both models on held-out validation trials the participant never trained on
+- Collect workload and preference questionnaires (mental demand, confidence, ease, final preference) alongside choice data
+
+---
 
 ## Technologies Used
 
