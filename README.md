@@ -150,6 +150,11 @@ A movie-recommendation preference elicitation system that estimates a new user's
 - Human-in-the-Loop Machine Learning
 - AI-Assisted Decision Making
 - Trustworthy and Collaborative AI Systems
+- Preference Elicitation
+- Recommender Systems
+- Learning-to-Rank / Ranking Models
+- Experimental Design for Human Studies
+- Human Preference Modeling
 
 ---
 
