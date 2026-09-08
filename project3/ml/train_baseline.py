@@ -58,7 +58,7 @@ def train_baseline():
     print(f"\nTest accuracy: {acc:.4f}\n")
     print(classification_report(test_labels, preds, target_names=LABEL_NAMES))
 
-    # Save both vectorizer and classifier -- you'll reuse this baseline
+    
     # classifier as the AI side of the learning-to-defer system in Task 3.
     joblib.dump(vectorizer, MODEL_DIR / "tfidf_vectorizer.joblib")
     joblib.dump(clf, MODEL_DIR / "baseline_classifier.joblib")

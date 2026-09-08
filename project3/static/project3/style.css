@@ -1,6 +1,4 @@
-/* Project 3 — Active Learning for Learning-to-Defer.
-   Shares the accessible, plain-language look of Project 2, which extends the
-   Project 1 base shell. Namespaced with p3- so it never collides. */
+
 
 :root {
   --p3-blue: #275CB2;
@@ -121,12 +119,12 @@ table.p3-table tbody tr:hover { background: var(--p3-blue-soft); }
 .p3-learn-more-body { padding: 16px 18px; color: var(--p3-muted); }
 .p3-learn-more-body p { color: var(--p3-muted); }
 
-/* ---- Forms (Try It) ---- */
+/* ---- Forms ---- */
 .p3-field label { display: block; margin-bottom: 8px; font-size: 17px; font-weight: 800; }
 .p3-form textarea { width: 100%; min-height: 130px; padding: 14px; border: 2px solid #8796a9; border-radius: 12px; font: inherit; font-size: 16px; box-sizing: border-box; resize: vertical; }
 .p3-form textarea:focus { border-color: var(--p3-blue); outline: none; }
 
-/* ---- Verdict (Try It result) ---- */
+/* ---- Verdict ---- */
 .p3-verdict { display: flex; align-items: center; gap: 16px; padding: 22px 24px; border-radius: 16px; margin: 22px 0; }
 .p3-verdict i { font-size: 40px; }
 .p3-verdict-defer { background: var(--p3-amber-soft); border: 2px solid var(--p3-amber-line); color: var(--p3-amber); }
