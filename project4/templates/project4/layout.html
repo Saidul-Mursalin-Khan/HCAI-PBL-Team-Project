@@ -5,21 +5,109 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="{% static 'project4/favicon.svg' %}" type="image/svg+xml">
 <link rel="stylesheet" href="{% static 'project4/css/study.css' %}">
+<head>
+    <style>
+:root {
+  --blue: #275CB2;
+  --blue-light: #e8f0fb;
+  --blue-dark: #1a3e80;
+  --border: rgba(39, 92, 178, 0.15);
+  --text: #1a1f2e;
+  --text-muted: #5a6478;
+} 
+
+        /* NAVBAR */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 16px 28px;
+
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+
+  border-bottom: 1px solid var(--border);
+
+  margin-bottom: 24px;
+}
+
+.nav-left,
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  text-decoration: none;
+  color: var(--text);
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.brand i {
+  font-size: 24px;
+  color: var(--blue);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 10px 14px;
+  border-radius: 10px;
+
+  text-decoration: none;
+  color: var(--text-muted);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: 0.2s;
+}
+
+.nav-link:hover {
+  background: var(--blue-light);
+  color: var(--blue);
+}
+
+.nav-link i {
+  font-size: 18px;
+}
+    </style>
+</head>
 {% endblock %}
 
 {% block content %}
 <a class="p4-skip-link" href="#p4-main">Skip to main content</a>
 <div class="p4-app">
-    <header class="p4-header">
-        <a class="p4-brand" href="{% url 'project4:index' %}" aria-label="Project 4 home">
-            <span class="p4-brand-mark" aria-hidden="true">P4</span>
-            <span>
-                <strong>Preference Lab</strong>
-                <small>Human-Centric AI · Project 4</small>
-            </span>
-        </a>
-        <span class="p4-study-chip">Study prototype</span>
-    </header>
+  
+    <nav class="navbar">
+  <div class="nav-left">
+    <a href="/" class="brand">
+      <i class="ti ti-brain"></i>
+      <span>HCAI Projects</span>
+    </a>
+  </div>
+
+  <div class="nav-right">
+    <a href="/" class="nav-link">
+      <i class="ti ti-home"></i>
+      Home
+    </a>
+  </div>
+</nav>
 
     <main id="p4-main" class="p4-main">
         {% block project4_content %}{% endblock %}
