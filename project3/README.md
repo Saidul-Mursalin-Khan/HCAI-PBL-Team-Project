@@ -57,7 +57,7 @@ source env/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
-If you use VS Code, select env/bin/python through Python: Select Interpreter.
+If you use VS Code, select env/bin/python` through Python: Select Interpreter.
 
 
 ## Prepare
@@ -95,7 +95,9 @@ python manage.py run_active_learning
 ```bash
 python manage.py runserver
 ```
-Open <http://127.0.0.1:8000/project3/>.
+ ```markdown
+ Open <http://127.0.0.1:8000/project3/>.
+ ```
 ---
 ## Model definitions
 
@@ -126,7 +128,10 @@ data/fancyzhx/ag_news is the IMDb 5000 file linked by the assignment brief:
 
 ````markdown
 AG News dataset (`fancyzhx/ag_news` on Hugging Face), as specified in the assignment brief: **120,000 training articles / 7,600 test articles**, evenly split across 4 topic classes (**World**, **Sports**, **Business**, **Sci/Tech**).
+https://huggingface.co/datasets/fancyzhx/ag_news
 ```
+
+
 ---
 ## Report
 

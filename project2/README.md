@@ -86,9 +86,9 @@ python manage.py test project2
 ```bash
 python manage.py runserver
 ```
-
+```markdown 
 Open http://127.0.0.1:8000/project2/.
-
+```
 ---
 
 ## Model definitions
