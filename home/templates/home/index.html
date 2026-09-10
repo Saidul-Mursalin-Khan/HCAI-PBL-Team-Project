@@ -2,76 +2,177 @@
 
 {% load static %}
 
+
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'home/style.css' %}">
+<link rel="stylesheet" href="{% static 'home/style.css' %}">
 {% endblock %}
+
 
 {% block content %}
 
 <div class="box">
+
+    <!-- ================================
+         HERO / TITLE SECTION
+         ================================ -->
+
     <div class="title-container">
-        <div class="title">Human-Centric Artificial Intelligence (SoSe 2026)</div>
+
+        <div class="title">
+            Human-Centric Artificial Intelligence (SoSe 2026)
+        </div>
+
+        <div class="summary">
+
+            <p class="centered-text">
+
+                Curated collection of projects from
+                Human-Centric Artificial Intelligence course (SoSe26)
+                at Hamburg University of Technology
+
+                <br>
+
+                <a
+                    href="https://github.com/Saidul-Mursalin-Khan/HCAI-PBL-Team-Project"
+                    class="gitlab-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    GitHub Repository: →
+                </a>
+
+            </p>
+
+        </div>
+
     </div>
+
+
+    <!-- ================================
+         MAIN CONTENT
+         ================================ -->
 
     <div class="main-text">
-        <div class="summary">
-            <p class="centered-text">
-                Curated collection of projects from Human-Centric Artificial Intelligence course (SoSe26) at Hamburg University of Technology
-                <br>
-                <a href="https://github.com/Saidul-Mursalin-Khan/HCAI-PBL-Team-Project" class="gitlab-link">GitLab Repository: →</a>
-            </p>
+
+
+        <!-- ================================
+             CONTRIBUTORS SECTION
+             ================================ -->
+
+        <div class="contributors-section">
+
+            <h2 class="section-title">
+                Contributors
+            </h2>
+
+
+            <div class="contributors-grid">
+
+                {% for student in students %}
+
+                    <div class="contributor-card">
+
+                        <span class="contributor-name">
+                            {{ student.name }}
+                        </span>
+
+                        <span class="contributor-matriculation">
+                            {{ student.matriculation }}
+                        </span>
+
+                    </div>
+
+                {% empty %}
+
+                    <div class="contributor-card">
+                        No students found.
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
         </div>
 
-<!-- CONTRIBUTORS SECTION -->
-        <div class="contributors-section">
-            <h2 class="section-title" style="text-align: center;">Contributors</h2>
-            <div class="contributors-grid">
-                {% for student in students %}
-                <div class="contributor-card">
-                    <span class="contributor-name">{{ student.name }}</span>
-                    <span class="contributor-matriculation">{{ student.matriculation }}</span>
-                </div>
-                {% empty %}
-                <div class="contributor-card">No students found.</div>
-                {% endfor %}
-            </div>
-        </div>
-        
-        <!-- PROJECTS SECTION -->
+
+        <!-- ================================
+             PROJECTS SECTION
+             ================================ -->
+
         <div class="projects-section">
-            <h2 class="section-title">Projects</h2>
-            
+
+            <h2 class="section-title">
+                Projects
+            </h2>
+
+
             <div class="projects-grid">
+
                 {% for project in projects %}
-                <div class="project-card">
-                    <div class="project-left">
-                        <div class="project-number">{{ project.number }}</div>
-                        <div class="project-content">
-                            <div class="project-name">{{ project.name }}</div>
-                            <div class="project-description">{{ project.description }}</div>
-                            <div class="project-tags">
-                                {% for tag in project.tags %}
-                                <span class="tag">{{ tag }}</span>
-                                {% endfor %}
+
+                    <div class="project-card">
+
+                        <!-- Project information -->
+
+                        <div class="project-left">
+
+                            <div class="project-number">
+                                {{ project.number }}
                             </div>
+
+
+                            <div class="project-content">
+
+                                <div class="project-name">
+                                    {{ project.name }}
+                                </div>
+
+
+                                <div class="project-description">
+                                    {{ project.description }}
+                                </div>
+
+
+                                <div class="project-tags">
+
+                                    {% for tag in project.tags %}
+
+                                        <span class="tag">
+                                            {{ tag }}
+                                        </span>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            </div>
+
                         </div>
+
+
+                        <!-- Project button -->
+
+                        <a
+                            href="{% url project.url_name %}"
+                            class="project-button"
+                        >
+                            Try it Out
+                        </a>
+
                     </div>
-                    <a href="{% url project.url_name %}" class="project-button">Try it Out</a>
-                </div>
+
                 {% endfor %}
+
             </div>
+
         </div>
-        
-        
-       <!------ <hr class="separator-line">-->
-       
-        
-        
-        
+
     </div>
+
 </div>
 
 {% endblock %}
+
 
 {% block script %}
 {% endblock script %}
