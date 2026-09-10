@@ -44,11 +44,13 @@ A collection of interactive, human-centered machine learning applications develo
 
 ## Summary
 
-This repository contains a collection of projects developed for the **Human-Centric Artificial Intelligence (HCAI)** course at **TUHH**.
+This repository contains a collection of interactive machine learning projects developed for the **Human-Centric Artificial Intelligence (HCAI)** course at **Hamburg University of Technology (TUHH)**.
 
-The projects demonstrate the application of human-centered AI and machine learning concepts through interactive web-based interfaces. Each project focuses on how humans can interact with, understand, and influence AI systems — covering automated machine learning, explainable AI, active learning, and human-AI collaboration.
+The projects demonstrate different human-centered AI and machine learning concepts through interactive web-based applications. They explore how users can interact with, understand, and collaborate with AI systems, covering **automated machine learning, explainable AI, active learning, and human-AI collaboration**.
 
-All applications are built with **Django**, providing hands-on experience with real-world machine learning workflows while keeping a strong focus on transparency, interpretability, and effective human involvement. The goal is not only to build accurate models, but to investigate how AI systems can become more understandable, adaptable, and reliable through human interaction.
+The applications are built using **Django** and Python-based machine learning libraries. The projects focus not only on predictive performance, but also on **transparency, interpretability, human involvement, and the interaction between humans and AI systems**.
+
+Overall, the repository demonstrates how machine learning systems can be designed to become more understandable, adaptable, and useful through meaningful human interaction.
 
 ---
 
@@ -56,15 +58,18 @@ All applications are built with **Django**, providing hands-on experience with r
 
 ### Project 01: Automated Machine Learning (AutoML)
 
-An interactive supervised learning interface for exploring the complete ML pipeline — from loading a dataset to training and evaluating models.
+An interactive supervised learning application that guides users through the main stages of a machine learning workflow, from dataset upload and visualization to model training and evaluation.
 
 **Features**
-- Upload and process structured (CSV) datasets
-- Visualize feature relationships and data distributions
+
+- Upload and process structured CSV datasets
+- Explore datasets through feature visualizations
+- Select features and target variables
+- Split data into training and testing sets
 - Select and train machine learning models
-- Split datasets into training and testing sets
-- Evaluate model performance with suitable metrics
-- Explore each stage of a typical ML workflow
+- Configure relevant model hyperparameters
+- Evaluate trained models using appropriate performance metrics
+- Explore the different stages of an end-to-end supervised learning workflow
 
 
 
@@ -72,69 +77,98 @@ An interactive supervised learning interface for exploring the complete ML pipel
 
 ### Project 02: Explainability
 
-An interactive explainable AI (XAI) application built on the **Palmer Penguins dataset**, exploring model behavior and the trade-off between complexity, accuracy, and interpretability.
+An interactive Explainable AI (XAI) application based on the **Palmer Penguins dataset**. The application explores model complexity, regularization, counterfactual explanations, and global feature-effect visualization for classification models.
 
-**Model Interpretability**
-- Train decision tree models at different complexity levels
-- Visualize decision trees and evaluate performance
-- Control model sparsity through regularization
-- Train logistic regression models with complexity measures
-- Compare accuracy vs. interpretability trade-offs
+**Model Interpretability and Complexity**
+
+- Train and visualize Decision Tree classifiers
+- Display test accuracy and model complexity using the number of leaves
+- Train models with different levels of regularization
+- Use a λ slider to explore the trade-off between predictive performance and model complexity
+- Train Logistic Regression models with an appropriate complexity measure
+- Compare model performance and interpretability across different model configurations
 
 **Counterfactual Explanations**
 
-The system generates personalized counterfactual examples showing how predictions change with different input features. Users can:
-- Select an instance from the dataset
-- Choose a desired target prediction
-- Generate alternative examples leading to that outcome
-- Identify which features drive model decisions
+The application generates counterfactual examples that show how changing input features can lead to a desired target prediction.
+
+Users can:
+
+- Select an example from the dataset
+- Select a desired target class
+- Generate counterfactual examples
+- Compare the original example with generated alternatives
+- Explore counterfactuals based on the selected model type and λ value
 
 **Feature Effect Visualization**
+
+The application provides global model-agnostic feature-effect visualizations:
+
 - Partial Dependence Plots (PDP)
-- Accumulated Local Effects (ALE) plots
+- Accumulated Local Effects (ALE)
+- Select any of the four numerical features
+- Visualize the effect of the selected feature on the predicted probability of each penguin species
 
 
 ---
 
 ### Project 03: Active Learning for Learning-to-Defer
 
-A human-in-the-loop system combining **active learning** with **learning-to-defer**, investigating how AI can recognize uncertain situations and choose to predict independently or request human input.
+A human-in-the-loop machine learning system based on the **AG News dataset**, combining classification, simulated expert feedback, learning-to-defer, and active learning.
 
 **Features**
-- Train classification models
-- Apply active learning strategies to select informative samples
-- Simulate expert feedback for challenging cases
-- Implement learning-to-defer mechanisms for human-AI collaboration
-- Compare traditional ML approaches against human-augmented systems
-- Evaluate how expert intervention affects performance and reliability
+
+- Train a baseline classifier for news-topic classification
+- Simulate one or more non-perfect experts with different areas of expertise
+- Evaluate the performance and strengths of the simulated expert(s)
+- Implement a learning-to-defer strategy that chooses between the model and the expert
+- Evaluate both predictive performance and the quality of deferral decisions
+- Apply active learning to select informative samples for expert queries
+- Investigate how expert feedback can be used to learn when deferral is beneficial
 
 ---
-### Project 4: Preference Elicitation
 
-A movie-recommendation preference elicitation system that estimates a new user's latent taste vector from a small number of interactions, comparing two elicitation interfaces (pairwise choice vs. full ranking) via a rigorous, ready-to-run user study design.
+### Project 04: Preference Elicitation
+
+A movie recommendation preference-elicitation system designed to study how efficiently a new user's preferences can be learned from a limited number of interactions.
+
+The system models a user's latent preference vector using movie features extracted from the **IMDb 5000 Movie Dataset**.
 
 **Features**
-- Extract a compact, justified feature representation for ~4,800 movies from the IMDb 5000 metadata dataset
-- Learn a linear utility model from limited pairwise comparisons (Bradley-Terry)
-- Extend Bradley-Terry to full rankings of multiple items (Plackett-Luce)
-- Run a counterbalanced, within-subject participant study comparing the two elicitation interfaces
-- Score both models on held-out validation trials the participant never trained on
-- Collect workload and preference questionnaires (mental demand, confidence, ease, final preference) alongside choice data
+
+- Extract a compact feature representation from approximately 5,000 movies
+- Model pairwise preferences using the Bradley-Terry model
+- Extend the preference model to rankings using the Plackett-Luce formulation
+- Compare two preference-elicitation interfaces:
+  - Pairwise movie comparison
+  - Ranking a set of ten movies
+- Design a counterbalanced within-subject user study
+- Evaluate preference models using held-out validation trials
+- Collect workload, confidence, ease-of-use, and preference feedback
+- Provide a landing page with access to the study documentation and interactive study interface
 
 ---
 
 ## Technologies Used
 
-- Python
-- Django Framework
-- Scikit-learn
-- Pandas
-- NumPy
-- Matplotlib
-- Machine Learning Models
-- Data Visualization Techniques
-- Interactive Web Interfaces
-- Human-in-the-Loop Machine Learning Approaches
+- **Python**
+- **Django**
+- **NumPy**
+- **Pandas**
+- **Scikit-learn**
+- **SciPy**
+- **Matplotlib**
+- **Seaborn**
+- **Hugging Face Datasets**
+- **HTML5**
+- **CSS3**
+- **Git / GitHub**
+
+### Datasets
+
+- **Palmer Penguins Dataset**
+- **IMDb 5000 Movie Dataset**
+- **AG News Dataset**
 
 ## Key Human-Centric AI Concepts Covered
 
@@ -145,15 +179,17 @@ A movie-recommendation preference elicitation system that estimates a new user's
 - Model Interpretability
 - Model Complexity and Regularization
 - Counterfactual Explanations
-- Feature Effect Visualization (PDP and ALE)
+- Partial Dependence Plots (PDP)
+- Accumulated Local Effects (ALE)
 - Active Learning
+- Simulated Expert Feedback
 - Learning-to-Defer
 - Human-in-the-Loop Machine Learning
-- AI-Assisted Decision Making
-- Trustworthy and Collaborative AI Systems
+- Human-AI Collaboration
 - Preference Elicitation
 - Recommender Systems
-- Learning-to-Rank / Ranking Models
+- Bradley-Terry Preference Modeling
+- Plackett-Luce Ranking Models
 - Experimental Design for Human Studies
 - Human Preference Modeling
 
@@ -161,12 +197,12 @@ A movie-recommendation preference elicitation system that estimates a new user's
 
 ## Prerequisites
 
-Before running this project collection, ensure the following are installed:
+Before running the project, ensure the following are installed:
 
-- **Python 3.8+** (3.11+ recommended)
+- **Python 3.11+**
 - **Git** for cloning the repository
 - **pip** for installing Python dependencies
-- **Virtual environment tools** (`venv`, included with Python 3.3+)
+- **Python virtual environment (`venv`)**
 
 ---
 
@@ -174,52 +210,49 @@ Before running this project collection, ensure the following are installed:
 
 ### 1. Clone the repository
 
-```bash
-git clone https://github.com/Saidul-Mursalin-Khan/HCAI-PBL-Team-Project.git
-cd HCAI-PBL-Team-Project
-```
+    git clone https://github.com/Saidul-Mursalin-Khan/HCAI-PBL-Team-Project.git
+    cd HCAI-PBL-Team-Project
 
 ### 2. Create and activate a virtual environment
 
-```bash
-# Create
-python3 -m venv venv
+#### Windows PowerShell
 
-# Activate — macOS/Linux
-source venv/bin/activate
+    python -m venv venv
+    .\venv\Scripts\Activate.ps1
 
-# Activate — Windows
-venv\Scripts\activate
-```
+#### macOS / Linux
+
+    python3 -m venv venv
+    source venv/bin/activate
 
 ### 3. Install dependencies
 
-```bash
-pip3 install --upgrade pip
-pip3 install -r requirements.txt
-```
+    python -m pip install --upgrade pip
+    python -m pip install -r requirements.txt
 
-### 4. Set up the Django application
+### 4. Apply Django migrations
 
-```bash
-python3 manage.py migrate
-```
+    python manage.py migrate
 
-### 5. Run additional commands for Project 3
+### 5. Run Project 3 commands
 
-```bash
-python manage.py run_expert_sim
-python manage.py run_deferral
-python manage.py run_active_learning
-```
+The following commands run the main Project 3 components:
 
-### 6. Run the development server
+    python manage.py run_expert_sim
+    python manage.py run_deferral
+    python manage.py run_active_learning
 
-```bash
-python3 manage.py runserver
-```
+- `run_expert_sim`: Simulates expert(s) and reports their accuracy on the AG News test set.
+- `run_deferral`: Trains and evaluates the learning-to-defer system.
+- `run_active_learning`: Runs active learning for expert-competence discovery.
 
-The server will start at **http://127.0.0.1:8000/**
+### 6. Start the development server
+
+    python manage.py runserver
+
+The server will start at:
+
+http://127.0.0.1:8000/
 
 ---
 
