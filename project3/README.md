@@ -98,9 +98,9 @@ python manage.py runserver
  ```markdown
  
  Open <http://127.0.0.1:8000/project3/>.
- 
- 
 
+ 
+```
 ---
 ## Model definitions
 
