@@ -56,7 +56,9 @@ source env/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
-If you use VS Code, select `env/bin/python` through Python: Select Interpreter.
+```markdown
+If you use VS Code, select `env/bin/pythonthrough Python: Select Interpreter.
+```
 ---
 ## Prepare and verify
 

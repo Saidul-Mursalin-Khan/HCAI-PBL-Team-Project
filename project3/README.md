@@ -122,9 +122,11 @@ The hybrid strategy avoids an "always defer" failure mode that pure uncertainty/
 
 ## Data provenance
 
-`data/fancyzhx/ag_news` is the IMDb 5000 file linked by the assignment brief:
+data/fancyzhx/ag_news is the IMDb 5000 file linked by the assignment brief:
 
+````markdown
 AG News dataset (`fancyzhx/ag_news` on Hugging Face), as specified in the assignment brief: **120,000 training articles / 7,600 test articles**, evenly split across 4 topic classes (**World**, **Sports**, **Business**, **Sci/Tech**).
+```
 ---
 ## Report
 
