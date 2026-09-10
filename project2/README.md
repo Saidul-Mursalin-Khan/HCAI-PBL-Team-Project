@@ -119,16 +119,18 @@ If no counterfactuals are found, increase N and/or adjust the sampling variance 
 - ALE: accumulate local differences in predictions over a grid of feature values.
 
 Exact partial derivatives are available for logistic regression. For the decision tree, discretization is used to approximate derivatives.
-
+```markdown
 Both PDP and ALE are implemented from scratch (no external libraries for these computations).
+```
 ---
 
 ## Data provenance
 Palmer Penguins dataset, obtained via the palmerpenguins Python package.
 
 Features: species, sex, bill_length_mm, flipper_length_mm, island, year, bill_depth_mm, body_mass_g.
-
+```markdown
 Target: species with three classes: Adelie, Gentoo, Chinstrap.
+```
 ---
 ## Report
 A downloadable methods and results report is available at:

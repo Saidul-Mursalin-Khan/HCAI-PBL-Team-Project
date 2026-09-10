@@ -145,7 +145,9 @@ Implemented via scikit-learn, e.g.:
 The user selects which hyperparameters to vary and over which values (grid search over the user-specified grid).
 
 ### Scores
+```markdown
 Chosen by the user, e.g. accuracy, F1, precision/recall, or MSE / R² for regression.
+```
 --- 
 ## Data provenance
 The interface works with any user-uploaded CSV in the standard format (features first, target last). Example datasets such as Iris can be used directly:
