@@ -20,7 +20,7 @@ def index(request):
         "number": "01",
         "name": "Automated Machine Learning",
         "description": "An interactive supervised learning dashboard for data visualization and machine learning. From CSV upload to prediction, everything is streamlined into a simple and intuitive workflow.",
-        "tags": ["data loader", "data visualization", "model training", "dataset"],
+        "tags": ["data loading", "data visualization", "model training", "model evaluation"],
         "url_name": "project1:index"
     },
     {
@@ -35,7 +35,7 @@ def index(request):
     "number": "03",
     "name": "Active Learning for Learning-to-Defer",
     "description": "An intelligent human-AI collaboration platform powered by active learning and learning-to-defer. Train models, simulate experts, and optimize when AI should ask for human input.",
-    "tags": ["active learning", "learning-to-defer", "text classifier", "sentiment analysis", "IMDB dataset"],
+    "tags": ["active learning", "learning-to-defer", "human-in-loop", "hybrid acquisition", "expert simulation"],
     "url_name": "project3:index"
     },
     {
