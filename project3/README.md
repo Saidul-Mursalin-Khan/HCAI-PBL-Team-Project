@@ -57,7 +57,7 @@ source env/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
-If you use VS Code, select env/bin/python through Python: Select Interpreter.
+If you use VS Code, select env/bin/python` through Python: Select Interpreter.
 
 
 ## Prepare
@@ -67,8 +67,9 @@ If you use VS Code, select env/bin/python through Python: Select Interpreter.
 .\env\Scripts\python.exe manage.py migrate
 ```
 ### Linux/macOS
-python manage.py migrate
+
 ```bash
+python manage.py migrate
 ```
 ##  Additional Project 3 commands 
 Run these after setup, migration, and verification as needed.
@@ -89,12 +90,14 @@ python manage.py run_active_learning
 ### Windows
 ```powershell
 .\env\Scripts\python.exe manage.py runserver
+
 ```
 ### Linux / macOS
 ```bash
 python manage.py runserver
+
 ```
-Open <http://127.0.0.1:8000/project3/>.
+ Open <http://127.0.0.1:8000/project3/>.
 ---
 ## Model definitions
 
@@ -103,9 +106,10 @@ Open <http://127.0.0.1:8000/project3/>.
  per example, from the classifier's predicted probability distribution:
  -  top-1 confidence, 
  - margin (top-1 minus top-2 probability), 
- - entropy. 
- The gate is trained to predict defer = 1 exactly when the AI's own prediction is wrong and the expert's prediction is right, and its decision threshold is calibrated on held-out data to directly maximise combined system accuracy.
-
+ - entropy
+ 
+The gate is trained to predict defer = 1 exactly when the AI's own prediction is wrong and the expert's prediction is right, and its decision threshold is calibrated on held-out data to directly maximise combined system accuracy.
+ 
 Active learning acquisition strategies:
 
 ```text
@@ -120,9 +124,13 @@ The hybrid strategy avoids an "always defer" failure mode that pure uncertainty/
 
 ## Data provenance
 
-`data/fancyzhx/ag_news` is the IMDb 5000 file linked by the assignment brief:
 
-AG News dataset (fancyzhx/ag_news on Hugging Face), as specified in the assignment brief: 120,000 training articles / 7,600 test articles, evenly split across 4 topic classes (World, Sports, Business, Sci/Tech).
+```markdown
+AG News dataset (`fancyzhx/ag_news` on Hugging Face), as specified in the assignment brief: **120,000 training articles / 7,600 test articles**, evenly split across 4 topic classes (**World**, **Sports**, **Business**, **Sci/Tech**).
+https://huggingface.co/datasets/fancyzhx/ag_news
+```
+
+
 ---
 ## Report
 
