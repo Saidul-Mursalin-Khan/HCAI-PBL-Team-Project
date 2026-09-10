@@ -90,10 +90,12 @@ python manage.py run_active_learning
 ### Windows
 ```powershell
 .\env\Scripts\python.exe manage.py runserver
+
 ```
 ### Linux / macOS
 ```bash
 python manage.py runserver
+
 ```
  Open <http://127.0.0.1:8000/project3/>.
 ---
